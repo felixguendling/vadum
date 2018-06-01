@@ -1,128 +1,75 @@
-// #include "pkg/common.h"
-#include <git2.h>
-#include <git2/clone.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#ifndef _WIN32
-# include <pthread.h>
-# include <unistd.h>
-#endif
-#ifndef PRIuZ
-/* Define the printf format specifer to use for size_t output */
-#if defined(_MSC_VER) || defined(__MINGW32__)
-#	define PRIuZ "Iu"
-#else
-#	define PRIuZ "zu"
-#endif
-#endif
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
-typedef struct progress_data {
-	git_transfer_progress fetch_progress;
-	size_t completed_steps;
-	size_t total_steps;
-	const char *path;
-} progress_data;
+#include "boost/filesystem.hpp"
 
-static void print_progress(const progress_data *pd)
-{
-	int network_percent = pd->fetch_progress.total_objects > 0 ?
-		(100*pd->fetch_progress.received_objects) / pd->fetch_progress.total_objects :
-		0;
-	int index_percent = pd->fetch_progress.total_objects > 0 ?
-		(100*pd->fetch_progress.indexed_objects) / pd->fetch_progress.total_objects :
-		0;
+#include "utl/logging.h"
+#include "utl/parser/util.h"
+#include "utl/struct/printable.h"
 
-	int checkout_percent = pd->total_steps > 0
-		? (100 * pd->completed_steps) / pd->total_steps
-		: 0;
-	int kbytes = pd->fetch_progress.received_bytes / 1024;
+#include "pkg/git_clone.h"
 
-	if (pd->fetch_progress.total_objects &&
-		pd->fetch_progress.received_objects == pd->fetch_progress.total_objects) {
-		printf("Resolving deltas %d/%d\r",
-		       pd->fetch_progress.indexed_deltas,
-		       pd->fetch_progress.total_deltas);
-	} else {
-		printf("net %3d%% (%4d kb, %5d/%5d)  /  idx %3d%% (%5d/%5d)  /  chk %3d%% (%4" PRIuZ "/%4" PRIuZ ") %s\n",
-		   network_percent, kbytes,
-		   pd->fetch_progress.received_objects, pd->fetch_progress.total_objects,
-		   index_percent, pd->fetch_progress.indexed_objects, pd->fetch_progress.total_objects,
-		   checkout_percent,
-		   pd->completed_steps, pd->total_steps,
-		   pd->path);
-	}
+namespace fs = boost::filesystem;
+using namespace pkg;
+
+struct dep {
+  MAKE_PRINTABLE(dep);
+
+  std::string name() const {
+    auto const slash_pos = url_.find_last_of('/');
+    auto const dot_pos = url_.find_last_of('.');
+    verify(slash_pos != std::string::npos, "no slash in url");
+    verify(dot_pos != std::string::npos, "no dot in url");
+    verify(slash_pos < dot_pos, "slash and to in wrong order");
+    return url_.substr(slash_pos + 1, dot_pos - slash_pos - 1);
+  }
+
+  std::string url_, ref_;
+};
+
+std::vector<dep> read_deps() {
+  std::vector<dep> deps;
+
+  auto const curr_dir = fs::current_path();
+  for (auto const& p : {curr_dir / ".pkg", curr_dir.parent_path() / ".pkg"}) {
+    if (!fs::is_regular_file(".pkg")) {
+      continue;
+    }
+
+    std::ifstream f{p.string().c_str()};
+    f.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+    std::string line, base, path, ref;
+    while (!f.eof() && f.peek() != EOF && std::getline(f, line)) {
+      if (line.empty()) {
+        continue;
+      }
+      if (line[0] == '*') {
+        base = line.substr(1);
+      } else {
+        std::stringstream ss{line};
+        ss >> path >> ref;
+
+        deps.push_back(dep{base.empty() ? path : base + ":" + path, ref});
+      }
+    }
+
+    if (!deps.empty()) {
+      break;
+    }
+  }
+
+  return deps;
 }
 
-static int sideband_progress(const char *str, int len, void *payload)
-{
-	(void)payload; // unused
-
-	printf("remote: %.*s", len, str);
-	fflush(stdout);
-	return 0;
-}
-
-static int fetch_progress(const git_transfer_progress *stats, void *payload)
-{
-	progress_data *pd = (progress_data*)payload;
-	pd->fetch_progress = *stats;
-	print_progress(pd);
-	return 0;
-}
-static void checkout_progress(const char *path, size_t cur, size_t tot, void *payload)
-{
-	progress_data *pd = (progress_data*)payload;
-	pd->completed_steps = cur;
-	pd->total_steps = tot;
-	pd->path = path;
-	print_progress(pd);
-}
-
-int agent(git_cred **out,
-		const char *,
-		const char *,
-		unsigned int,
-		void *)
-{
-	return git_cred_ssh_key_from_agent(out, "git");
-}
-
-int main(int argc, char **argv)
-{
-	progress_data pd = {{0}};
-	git_repository *cloned_repo = NULL;
-	git_clone_options clone_opts = GIT_CLONE_OPTIONS_INIT;
-	git_checkout_options checkout_opts = GIT_CHECKOUT_OPTIONS_INIT;
-	const char *url = argv[1];
-	const char *path = argv[2];
-  const char *git_dir = argv[2];
-
-	git_libgit2_init();
-
-	int error;
-
-	// Set up options
-	checkout_opts.checkout_strategy = GIT_CHECKOUT_SAFE;
-	checkout_opts.progress_cb = checkout_progress;
-	checkout_opts.progress_payload = &pd;
-	clone_opts.checkout_opts = checkout_opts;
-	clone_opts.fetch_opts.callbacks.sideband_progress = sideband_progress;
-	clone_opts.fetch_opts.callbacks.transfer_progress = &fetch_progress;
-  clone_opts.fetch_opts.callbacks.credentials = agent;
-	clone_opts.fetch_opts.callbacks.payload = &pd;
-
-	// Do the clone
-	error = git_clone(&cloned_repo, url, path, &clone_opts);
-	printf("\n");
-	if (error != 0) {
-		const git_error *err = giterr_last();
-		if (err) printf("ERROR %d: %s\n", err->klass, err->message);
-		else printf("ERROR %d: no detailed info\n", error);
-	}
-	else if (cloned_repo) git_repository_free(cloned_repo);
-
-	git_libgit2_shutdown();
-
-	return error;
+int main(int argc, char** argv) {
+  auto const deps_root = fs::path("deps");
+  fs::remove_all(deps_root);
+  fs::create_directories(deps_root);
+  for (auto const& d : read_deps()) {
+    auto const path = deps_root / d.name();
+    uLOG(utl::info) << "cloning " << d.url_ << " to " << path;
+    git_clone(d.url_, path.generic_string(), d.ref_);
+  }
 }
