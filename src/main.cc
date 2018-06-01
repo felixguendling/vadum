@@ -6,7 +6,6 @@
 
 #include "utl/logging.h"
 #include "utl/parser/util.h"
-#include "utl/struct/printable.h"
 
 #include "pkg/git_clone.h"
 
@@ -14,8 +13,6 @@ namespace fs = boost::filesystem;
 using namespace pkg;
 
 struct dep {
-  MAKE_PRINTABLE(dep);
-
   std::string name() const {
     auto const slash_pos = url_.find_last_of('/');
     auto const dot_pos = url_.find_last_of('.');
@@ -50,7 +47,6 @@ std::vector<dep> read_deps() {
       } else {
         std::stringstream ss{line};
         ss >> path >> ref;
-
         deps.push_back(dep{base.empty() ? path : base + ":" + path, ref});
       }
     }

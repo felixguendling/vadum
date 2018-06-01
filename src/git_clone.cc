@@ -3,8 +3,8 @@
 #include "git2.h"
 #include "git2/clone.h"
 
-#include "utl/raii.h"
 #include "utl/parser/util.h"
+#include "utl/raii.h"
 
 namespace pkg {
 
@@ -41,12 +41,12 @@ void git_clone(std::string const& url, std::string const& path,
     auto const e = giterr_last();
     throw std::runtime_error(e ? e->message : "unkown git error");
   } else if (cloned_repo) {
+    UTL_FINALLY([&]() { git_repository_free(cloned_repo); });
     git_object* target = nullptr;
     verify(git_revparse_single(&target, cloned_repo, ref.c_str()) == 0,
            "could not resolve ref");
     verify(git_reset(cloned_repo, target, GIT_RESET_HARD, nullptr) == 0,
            "could not reset to ref");
-    git_repository_free(cloned_repo);
   }
 }
 
