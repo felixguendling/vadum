@@ -103,4 +103,11 @@ int main(int argc, char** argv) {
       clone_dep_recursive(visited, deps_root, d);
     }
   }
+
+  std::ofstream of{"deps/CMakeLists.txt"};
+  of << "project(" + deps_root.string() << ")\n"
+     << "cmake_minimum_required(VERSION 3.11)\n\n";
+  for (auto const& v : visited) {
+    of << "add_subdirectory(" << v.name() << " EXCLUDE_FROM_ALL)\n";
+  }
 }

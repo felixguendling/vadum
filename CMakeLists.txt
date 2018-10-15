@@ -20,12 +20,3 @@ include_directories(include)
 file(GLOB_RECURSE pkg-files src/*.cc)
 add_executable(pkg ${pkg-files})
 target_link_libraries(pkg git2 utl ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
-
-function(get_dependencies)
-  add_custom_command(
-    OUTPUT deps
-    COMMAND pkg ${CMAKE_SOURCE_DIR}/.pkg
-    DEPENDS pkg ${CMAKE_SOURCE_DIR}/.pkg
-  )
-  set_property(SOURCE deps PROPERTY SYMBOLIC 1)
-endfunction()
