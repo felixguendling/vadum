@@ -114,25 +114,21 @@ struct dependency_loader {
   std::vector<dep*> sorted() {
     auto sorted = std::vector<dep*>{};
     auto all = utl::to_vec(dep_mem_, [](auto&& d) { return d.get(); });
-    while (true) {
-      auto const dependency_free = std::find_if(
+    while (!all.empty()) {
+      auto const next = std::find_if(
           begin(all), end(all), [](auto&& d) { return d->succs_.empty(); });
-      if (dependency_free == end(all)) {
-        return sorted;
-      }
+      verify(next != end(all), "cycle detected");
 
-      std::cout << (*dependency_free)->name() << " has no dependencies\n";
-
-      if ((*dependency_free)->name() != ROOT) {
-        sorted.emplace_back(*dependency_free);
+      auto d = (*next);
+      if (d->name() != ROOT) {
+        sorted.emplace_back(d);
+        for (auto const& pred : d->preds_) {
+          utl::erase(pred->succs_, d);
+        }
       }
-      for (auto const& pred : (*dependency_free)->preds_) {
-        std::cout << "  removing " << (*dependency_free)->name() << " from "
-                  << pred->name() << "\n";
-        utl::erase(pred->succs_, (*dependency_free));
-      }
-      all.erase(dependency_free);
+      all.erase(next);
     }
+    return sorted;
   }
 
   fs::path deps_root_;
