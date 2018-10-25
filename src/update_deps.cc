@@ -15,7 +15,8 @@ namespace fs = boost::filesystem;
 namespace pkg {
 
 std::string update_revs(fs::path const& deps_root, dep* d,
-                        std::map<std::string, std::string> const& new_revs) {
+                        std::map<std::string, std::string> const& new_revs,
+                        bool do_commit = true) {
   {
     auto const deps = read_deps(deps_root, d);
     std::ofstream of{(deps_root / d->name() / PKG_FILE).string().c_str()};
@@ -33,8 +34,9 @@ std::string update_revs(fs::path const& deps_root, dep* d,
   }
 
   std::cout << "  commiting changes in " << (deps_root / d->name()) << "\n";
-  return commit((deps_root / d->name()).string(),
-                "update dependencies .pkg file");
+  return do_commit ? commit((deps_root / d->name()).string(),
+                            "update dependencies .pkg file")
+                   : "";
 }
 
 void update_deps(fs::path const& repo, fs::path const& deps_root) {
@@ -75,7 +77,7 @@ void update_deps(fs::path const& repo, fs::path const& deps_root) {
     }
   }
 
-  // update_revs(repo, dep::root(), new_revs);
+  update_revs(repo, dep::root(), new_revs, false);
 }
 
 }  // namespace pkg
