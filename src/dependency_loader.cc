@@ -10,7 +10,7 @@
 #include "utl/get_or_create.h"
 #include "utl/to_vec.h"
 
-#include "pkg/git_clone.h"
+#include "pkg/git/git_clone.h"
 
 namespace fs = boost::filesystem;
 
