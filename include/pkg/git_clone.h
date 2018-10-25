@@ -4,7 +4,7 @@
 
 namespace pkg {
 
-void git_clone(std::string const& url, std::string const& path,
-               std::string const& ref);
+void git_clone(std::string const& url, std::string const& ref,
+               std::string const& path);
 
 }  // namespace pkg
