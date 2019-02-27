@@ -3,4 +3,4 @@
 	url = git@git.motis-project.de:lib/utl.git
 [submodule "external_lib/libgit2"]
 	path = external_lib/libgit2
-	url = git@github.com:libgit2/libgit2.git
+	url = git@git.motis-project.de:lib/libgit2.git

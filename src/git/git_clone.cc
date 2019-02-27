@@ -1,5 +1,7 @@
 #include "pkg/git/git_clone.h"
 
+#include <iostream>
+
 #include "git2.h"
 #include "git2/clone.h"
 
