@@ -2,8 +2,10 @@
 
 #include <string>
 
+#include "boost/filesystem/path.hpp"
+
 namespace pkg {
 
-std::string commit(std::string const& p, std::string const& msg);
+std::string commit(boost::filesystem::path const& path, std::string const& msg);
 
 }  // namespace pkg

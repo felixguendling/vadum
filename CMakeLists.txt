@@ -11,13 +11,16 @@ find_package(Boost COMPONENTS system filesystem REQUIRED)
 link_directories(${Boost_LIBRARY_DIRS})
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build Shared Library (OFF for Static)")
-add_subdirectory(external_lib/libgit2 EXCLUDE_FROM_ALL)
 add_subdirectory(external_lib/utl EXCLUDE_FROM_ALL)
-include_directories(external_lib/libgit2/include)
-include_directories(include)
+add_subdirectory(external_lib/fmt EXCLUDE_FROM_ALL)
 
 file(GLOB_RECURSE pkg-files src/*.cc)
 add_executable(pkg ${pkg-files})
 set_target_properties(pkg PROPERTIES COMPILE_FLAGS "-std=c++17")
-target_link_libraries(pkg git2 utl ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+target_include_directories(pkg PRIVATE include)
+target_link_libraries(pkg
+  utl
+  fmt
+  ${Boost_FILESYSTEM_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
+)
