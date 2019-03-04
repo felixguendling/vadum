@@ -6,7 +6,7 @@
 #include "boost/filesystem.hpp"
 
 #include "pkg/dependency_loader.h"
-#include "pkg/git/git_clone.h"
+#include "pkg/git.h"
 
 namespace fs = boost::filesystem;
 

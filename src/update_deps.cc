@@ -7,8 +7,7 @@
 #include <set>
 
 #include "pkg/dependency_loader.h"
-#include "pkg/git/get_revision.h"
-#include "pkg/git/git_commit.h"
+#include "pkg/git.h"
 
 namespace fs = boost::filesystem;
 
