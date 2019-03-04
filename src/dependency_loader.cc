@@ -62,7 +62,7 @@ std::string name_from_url(std::string const& url) {
   auto const dot_pos = url.find_last_of('.');
   verify(slash_pos != std::string::npos, "no slash in url");
   verify(dot_pos != std::string::npos, "no dot in url");
-  verify(slash_pos < dot_pos, "slash and to in wrong order");
+  verify(slash_pos < dot_pos, "slash and dot in wrong order");
   return url.substr(slash_pos + 1, dot_pos - slash_pos - 1);
 }
 
