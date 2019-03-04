@@ -1,6 +1,8 @@
 project(pkg)
 cmake_minimum_required(VERSION 3.10)
 
+find_package(Threads)
+
 if (MSVC)
   set(Boost_USE_STATIC_LIBS ON)
   set(Boost_USE_MULTITHREADED ON)
@@ -23,4 +25,5 @@ target_link_libraries(pkg
   fmt
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
+  ${CMAKE_THREAD_LIBS_INIT}
 )
