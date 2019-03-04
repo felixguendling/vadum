@@ -11,6 +11,7 @@ inline void git_clone(std::string const& url, std::string const& ref,
   exec(p.parent_path(), "git clone {} {}", url,
        boost::filesystem::absolute(p).string());
   exec(p, "git checkout {}", ref);
+  exec(p, "git submodule update --init --recursive");
 }
 
 inline std::string get_revision(boost::filesystem::path const& p) {
