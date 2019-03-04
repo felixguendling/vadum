@@ -25,7 +25,7 @@ void clear_and_load_deps(fs::path const& repo, fs::path const& deps_root) {
 
   std::ofstream of{"deps/CMakeLists.txt"};
   of << "project(" + deps_root.string() << ")\n"
-     << "cmake_minimum_required(VERSION 3.11)\n\n";
+     << "cmake_minimum_required(VERSION 3.10)\n\n";
   for (auto const& v : l.sorted()) {
     of << "add_subdirectory(" << v->name() << " EXCLUDE_FROM_ALL)\n";
   }
