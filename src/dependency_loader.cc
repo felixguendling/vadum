@@ -108,7 +108,14 @@ void dependency_loader::retrieve(
       retrieve(next, iterate);
       return next;
     });
-    verify(succ->ref_ == ref, "non-matching ref");
+    if (succ->ref_ != ref) {
+      std::cerr << "non-matching ref: " << url << "\n";
+      std::cerr << ref << " from: " << pred->url_ << "\n";
+      for (auto const* succ_pred : succ->preds_) {
+        std::cerr << succ->ref_ << " from: " << succ_pred->url_ << "\n";
+      }
+      verify(false, "non-matching ref");
+    }
     succ->preds_.insert(pred);
     pred->succs_.insert(succ);
   }
