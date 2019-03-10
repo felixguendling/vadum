@@ -8,7 +8,7 @@ if (MSVC)
   set(Boost_USE_MULTITHREADED ON)
   set(Boost_USE_STATIC_RUNTIME ON)
 endif()
-find_package(Boost COMPONENTS system filesystem REQUIRED)
+find_package(Boost COMPONENTS system filesystem property_tree REQUIRED)
 
 link_directories(${Boost_LIBRARY_DIRS})
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
@@ -25,5 +25,6 @@ target_link_libraries(pkg
   fmt
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
+  ${Boost_PROPERTYTREE_LIBRARY}
   ${CMAKE_THREAD_LIBS_INIT}
 )

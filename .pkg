@@ -1,0 +1,8 @@
+[fmt]
+  url=git@git.motis-project.de:lib/fmt.git
+  branch=master
+  commit=287eaab3b2777daa5d0d0cf72d977196ba54efb7
+[utl]
+  url=git@git.motis-project.de:lib/utl.git
+  branch=master
+  commit=eb13e0527bcbe5939bb7bb9b40f092ec64dffc3b
