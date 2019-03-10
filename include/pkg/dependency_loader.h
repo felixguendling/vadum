@@ -12,39 +12,9 @@
 
 #include "utl/parser/util.h"
 
+#include "pkg/dep.h"
+
 namespace pkg {
-
-constexpr auto const PKG_FILE = ".pkg";
-constexpr auto const ROOT = ".";
-
-struct dep;
-
-std::vector<std::pair<std::string, std::string>> read_deps(
-    boost::filesystem::path const& deps_root, dep const*);
-
-std::string name_from_url(std::string const&);
-
-struct dep {
-  dep(std::string url, std::string ref)
-      : url_{std::move(url)}, ref_{std::move(ref)} {}
-
-  static dep* root() {
-    static dep d{ROOT, ROOT};
-    return &d;
-  }
-
-  std::string name() const { return name_from_url(url_); }
-
-  friend bool operator<(dep const& a, dep const& b) { return a.url_ < b.url_; }
-
-  friend bool operator==(dep const& a, dep const& b) {
-    return a.url_ == b.url_;
-  }
-
-  std::string url_, ref_;
-  std::set<dep*> preds_;
-  std::set<dep*> succs_;
-};
 
 struct dependency_loader {
 public:

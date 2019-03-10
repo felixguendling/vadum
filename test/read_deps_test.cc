@@ -1,0 +1,53 @@
+#include "doctest.h"
+
+#include <iostream>
+
+#include "pkg/read_deps.h"
+
+using pkg::dep;
+using pkg::read_deps;
+
+auto const pkg_file_1 = std::string{R"(
+git@git.net/conf.git    78699a83f7c3979ce49a0bcd7d9179e39d87a8b3
+git@git.net/ctx.git     cd390d60d545752e241ce982ba09ea78ab157ba2
+git@git.net/fbs.git     c3d74c78904a08f89d61d2c2378d361999a53566
+git@git.net/geo.git     3873d97fdcc44c599a38faf86ad2f903cf5f3896
+git@git.net/lmdb.git    df5c07807e2a40f6e451497d15095ee405ad3693
+git@git.net/miniz.git   f5d1cf73092133260fd705b1ff9128cae59a2e27
+git@git.net/net.git     494d1527d81ba286f18f1d0e4a7fefb580e49af4
+git@git.net/osrm.git    bf0acdf920eb06419c233b51e4f333eaf3f0f127
+git@git.net/pugi.git    8153c7e9a52b9a64397737625d845fa7aec9e117
+git@git.net/hash.git    4effd2daabd21054e6818ae1a68dd801bc44e67f
+git@git.net/tar.git     7f2916f556a9972059611a0d471aaa465300c20c
+git@git.net/utl.git     36abee117eb8a4fbda51a2000ccded3f7fd24ebe
+)"};
+
+TEST_CASE("load_deps_old") {
+  auto const check_deps = std::vector<dep>{{
+      dep{"git@git.net/conf.git", "78699a83f7c3979ce49a0bcd7d9179e39d87a8b3",
+          ""},
+      dep{"git@git.net/ctx.git", "cd390d60d545752e241ce982ba09ea78ab157ba2",
+          ""},
+      dep{"git@git.net/fbs.git", "c3d74c78904a08f89d61d2c2378d361999a53566",
+          ""},
+      dep{"git@git.net/geo.git", "3873d97fdcc44c599a38faf86ad2f903cf5f3896",
+          ""},
+      dep{"git@git.net/lmdb.git", "df5c07807e2a40f6e451497d15095ee405ad3693",
+          ""},
+      dep{"git@git.net/miniz.git", "f5d1cf73092133260fd705b1ff9128cae59a2e27",
+          ""},
+      dep{"git@git.net/net.git", "494d1527d81ba286f18f1d0e4a7fefb580e49af4",
+          ""},
+      dep{"git@git.net/osrm.git", "bf0acdf920eb06419c233b51e4f333eaf3f0f127",
+          ""},
+      dep{"git@git.net/pugi.git", "8153c7e9a52b9a64397737625d845fa7aec9e117",
+          ""},
+      dep{"git@git.net/hash.git", "4effd2daabd21054e6818ae1a68dd801bc44e67f",
+          ""},
+      dep{"git@git.net/tar.git", "7f2916f556a9972059611a0d471aaa465300c20c",
+          ""},
+      dep{"git@git.net/utl.git", "36abee117eb8a4fbda51a2000ccded3f7fd24ebe",
+          ""},
+  }};
+  CHECK(check_deps == read_deps(pkg_file_1));
+}

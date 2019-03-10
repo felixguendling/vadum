@@ -8,6 +8,7 @@
 
 #include "pkg/dependency_loader.h"
 #include "pkg/git.h"
+#include "pkg/read_deps.h"
 
 namespace fs = boost::filesystem;
 
@@ -19,13 +20,13 @@ std::string update_revs(fs::path const& deps_root, dep* d,
   {
     auto const deps = read_deps(deps_root, d);
     std::ofstream of{(deps_root / d->name() / PKG_FILE).string().c_str()};
-    for (auto const& [succ_url, succ_ref] : deps) {
-      of << succ_url << " ";
-      if (auto const it = new_revs.find(name_from_url(succ_url));
+    for (auto const& d : deps) {
+      of << d.url_ << " ";
+      if (auto const it = new_revs.find(name_from_url(d.url_));
           it != end(new_revs)) {
         of << it->second;
       } else {
-        of << succ_ref;
+        of << d.commit_;
       }
       of << "\n";
     }
@@ -47,8 +48,8 @@ void update_deps(fs::path const& repo, fs::path const& deps_root) {
   std::queue<dep*> q;
   std::set<dep*> initial;
   for (auto const& dep : sorted) {
-    if (auto const new_rev = get_revision((deps_root / dep->name()).string());
-        new_rev != dep->ref_) {
+    if (auto const new_rev = get_commit((deps_root / dep->name()).string());
+        new_rev != dep->commit_) {
       new_revs[dep->name()] = new_rev;
       q.emplace(dep);
       initial.emplace(dep);
