@@ -1,6 +1,6 @@
 #include <cstdio>
 
-#include "pkg/clear_and_load_deps.h"
+#include "pkg/load_deps.h"
 #include "pkg/update_deps.h"
 
 namespace fs = boost::filesystem;
@@ -13,6 +13,6 @@ int main(int argc, char** argv) {
   } else if (std::strcmp(argv[1], "-u") == 0) {
     update_deps(fs::path{"."}, fs::path("deps"));
   } else if (std::strcmp(argv[1], "-l") == 0) {
-    clear_and_load_deps(fs::path{"."}, fs::path("deps"));
+    load_deps(fs::path{"."}, fs::path("deps"));
   }
 }

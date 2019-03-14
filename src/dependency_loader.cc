@@ -62,10 +62,9 @@ void dependency_loader::retrieve(
   std::cout << "\n";
 
   for (auto const& d : deps) {
-
     auto succ = utl::get_or_create(deps_, d.url_, [&]() {
       auto next = dep_mem_.emplace_back(std::make_unique<dep>(d)).get();
-      iterate(next->url_, (deps_root_ / next->name()).string(), next->commit_);
+      iterate((deps_root_ / next->name()).string(), next);
       retrieve(next, iterate);
       return next;
     });
