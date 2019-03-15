@@ -33,9 +33,14 @@ std::string update_revs(fs::path const& deps_root, dep* d,
   }
 
   std::cout << "  commiting changes in " << (deps_root / d->name()) << "\n";
-  return do_commit ? commit((deps_root / d->name()).string(),
-                            "update dependencies .pkg file")
-                   : "";
+
+  std::string new_rev = "";
+  if (do_commit) {
+    auto const repo_path = (deps_root / d->name()).string();
+    new_rev = commit(repo_path, ".pkg: update dependencies .pkg file");
+    push(repo_path); // XXX directly and unconditionally push here ???
+  }
+  return new_rev;
 }
 
 void update_deps(fs::path const& repo, fs::path const& deps_root) {

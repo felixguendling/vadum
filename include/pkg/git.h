@@ -29,4 +29,6 @@ inline std::string commit(boost::filesystem::path const& p,
   return get_commit(p);
 }
 
+inline void push(boost::filesystem::path const& p) { exec(p, "git push"); }
+
 }  // namespace pkg
