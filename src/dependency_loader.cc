@@ -14,6 +14,7 @@
 
 #include "pkg/git.h"
 #include "pkg/read_deps.h"
+#include "pkg/write_deps.h"
 
 namespace fs = boost::filesystem;
 
@@ -53,13 +54,7 @@ std::vector<dep*> dependency_loader::sorted() {
 void dependency_loader::retrieve(
     dep* pred, dependency_loader::iteration_fn_t const& iterate) {
   auto const deps = read_deps(deps_root_, pred);
-  for (auto const d : deps) {
-    std::cout << "[" << d.name() << "]\n"  //
-              << "  url=" << d.url_ << "\n"  //
-              << "  branch=" << d.branch_ << "\n"  //
-              << "  commit=" << d.commit_ << "\n";
-  }
-  std::cout << "\n";
+  write_deps(std::cout, deps);
 
   for (auto const& d : deps) {
     auto succ = utl::get_or_create(deps_, d.url_, [&]() {
