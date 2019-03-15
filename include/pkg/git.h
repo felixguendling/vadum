@@ -2,21 +2,21 @@
 
 #include "utl/erase.h"
 
+#include "pkg/dep.h"
 #include "pkg/exec.h"
 
 namespace pkg {
 
-inline void git_clone(std::string const& url, std::string const& commit,
-                      boost::filesystem::path const& p) {
-  exec(p.parent_path(), "git clone {} {}", url,
-       boost::filesystem::absolute(p).string());
-  exec(p, "git checkout {}", commit);
-  exec(p, "git submodule update --init --recursive");
-  exec(p, "git branch -a --contains {}", commit);
+inline void git_clone(dep const* d) {
+  exec(d->path_.parent_path(), "git clone {} {}", d->url_,
+       boost::filesystem::absolute(d->path_).string());
+  exec(d->path_, "git checkout {}", d->commit_);
+  exec(d->path_, "git submodule update --init --recursive");
 }
 
-inline std::string get_commit(boost::filesystem::path const& p) {
-  auto out = exec(p, "git rev-parse HEAD").out_;
+inline std::string get_commit(boost::filesystem::path const& p,
+                              std::string const& target = "HEAD") {
+  auto out = exec(p, "git rev-parse {}", target).out_;
   utl::erase(out, '\n');
   return out;
 }

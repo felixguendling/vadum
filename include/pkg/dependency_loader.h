@@ -10,23 +10,21 @@
 
 #include "boost/filesystem/path.hpp"
 
-#include "utl/parser/util.h"
-
 #include "pkg/dep.h"
 
 namespace pkg {
 
 struct dependency_loader {
 public:
-  using iteration_fn_t = std::function<void(boost::filesystem::path, dep*)>;
+  using iteration_fn_t = std::function<void(dep*)>;
 
   explicit dependency_loader(boost::filesystem::path deps_root);
   ~dependency_loader();
 
   void retrieve(boost::filesystem::path const&,
-                iteration_fn_t const& = [](boost::filesystem::path const&,
-                                           dep*) {});
+                iteration_fn_t const& = [](dep*) {});
   std::vector<dep*> sorted();
+  std::vector<dep*> get_all() const;
 
 private:
   void retrieve(dep* pred, iteration_fn_t const&);

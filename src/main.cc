@@ -1,6 +1,11 @@
 #include <cstdio>
+#include <fstream>
+#include <iostream>
 
+#include "pkg/dependency_loader.h"
+#include "pkg/detect_branch.h"
 #include "pkg/load_deps.h"
+#include "pkg/status.h"
 #include "pkg/update_deps.h"
 
 namespace fs = boost::filesystem;
@@ -14,5 +19,7 @@ int main(int argc, char** argv) {
     update_deps(fs::path{"."}, fs::path("deps"));
   } else if (std::strcmp(argv[1], "-l") == 0) {
     load_deps(fs::path{"."}, fs::path("deps"));
+  } else if (std::strcmp(argv[1], "-s") == 0) {
+    print_status(fs::path{"."}, fs::path("deps"));
   }
 }

@@ -18,7 +18,6 @@ exec_result exec(boost::filesystem::path const& working_directory,
   namespace bp = boost::process;
 
   auto cmd = fmt::format(command, args...);
-  printf("-> [%s]\n", cmd.c_str());
 
   bp::ipstream out, err;
   bp::child c(cmd, bp::start_dir = working_directory, bp::std_out > out,
@@ -50,10 +49,11 @@ exec_result exec(boost::filesystem::path const& working_directory,
 
   c.wait();
 
-  printf("ERROR %d\n", c.exit_code());
-  printf("OUTPUT:\n%s\n", out_ss.str().c_str());
-  printf("ERROR:\n%s\n", err_ss.str().c_str());
   if (c.exit_code() != 0) {
+    printf("COMMAND [%s] failed\n", cmd.c_str());
+    printf("ERROR %d\n", c.exit_code());
+    printf("OUTPUT:\n%s\n", out_ss.str().c_str());
+    printf("ERROR:\n%s\n", err_ss.str().c_str());
     throw std::runtime_error("exit code != 0");
   }
 

@@ -2,12 +2,18 @@
 
 #include <sstream>
 
+#include "fmt/format.h"
+#include "fmt/ranges.h"
+
+#include "pkg/dependency_loader.h"
 #include "pkg/exec.h"
 #include "pkg/git.h"
 
+namespace fs = boost::filesystem;
+
 namespace pkg {
 
-std::vector<std::string> detect_branch(boost::filesystem::path const& p) {
+std::vector<std::string> detect_branch(fs::path const& p) {
   return detect_branch(
       exec(p, "git branch -a --contains {}", get_commit(p)).out_);
 }
@@ -34,6 +40,23 @@ std::vector<std::string> detect_branch(
     branches.emplace_back(line.substr(start_tag_pos + start_tag_len));
   }
   return branches;
+}
+
+bool detect_branch(dep* d) {
+  if (!d->branch_.empty()) {
+    return false;
+  }
+
+  if (auto const branches = detect_branch(d->path_); branches.size() == 1) {
+    d->branch_ = branches.front();
+    fmt::print("Branch of {} in {} is unambiguous. Using: {}\n", d->commit_,
+               d->url_, d->branch_);
+    return true;
+  } else {
+    fmt::print("Branch of {} in {} is ambiguous. Options: {}\n", d->commit_,
+               d->url_, branches);
+    return false;
+  }
 }
 
 }  // namespace pkg
