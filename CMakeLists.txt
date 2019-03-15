@@ -29,10 +29,14 @@ target_link_libraries(pkglib
   ${Boost_PROPERTYTREE_LIBRARY}
   ${CMAKE_THREAD_LIBS_INIT}
 )
+set_property(TARGET pkglib PROPERTY CXX_STANDARD 17)
 
 add_executable(pkg src/main.cc)
 target_link_libraries(pkg pkglib)
+set_property(TARGET pkg PROPERTY CXX_STANDARD 17)
+
 
 file(GLOB_RECURSE pkg-test-files test/*_test.cc)
 add_executable(pkg-test src/read_deps.cc ${pkg-test-files})
 target_link_libraries(pkg-test pkglib)
+set_property(TARGET pkg-test PROPERTY CXX_STANDARD 17)

@@ -10,6 +10,7 @@
 #include "pkg/git.h"
 #include "pkg/name_from_url.h"
 #include "pkg/read_deps.h"
+#include "pkg/write_deps.h"
 
 namespace fs = boost::filesystem;
 
@@ -19,25 +20,28 @@ std::string update_revs(fs::path const& deps_root, dep* d,
                         std::map<std::string, std::string> const& new_revs,
                         bool do_commit = true) {
   {
-    auto const deps = read_deps(deps_root, d);
-    std::ofstream of{(deps_root / d->name() / PKG_FILE).string().c_str()};
-    for (auto const& d : deps) {
-      of << d.url_ << " ";
+    auto deps = read_deps(deps_root, d);
+    for (auto& d : deps) {
       if (auto const it = new_revs.find(name_from_url(d.url_));
           it != end(new_revs)) {
-        of << it->second;
-      } else {
-        of << d.commit_;
+        d.commit_ = it->second;
       }
-      of << "\n";
     }
+
+    std::ofstream of{(deps_root / d->name() / PKG_FILE).string().c_str()};
+    write_deps(of, deps);
     of.close();
   }
 
   std::cout << "  commiting changes in " << (deps_root / d->name()) << "\n";
-  return do_commit ? commit((deps_root / d->name()).string(),
-                            "update dependencies .pkg file")
-                   : "";
+
+  std::string new_rev = "";
+  if (do_commit) {
+    auto const repo_path = (deps_root / d->name()).string();
+    new_rev = commit(repo_path, ".pkg: update dependencies .pkg file");
+    push(repo_path); // XXX directly and unconditionally push here ???
+  }
+  return new_rev;
 }
 
 void update_deps(fs::path const& repo, fs::path const& deps_root) {
