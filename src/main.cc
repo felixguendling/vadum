@@ -5,7 +5,7 @@
 #include "pkg/dependency_loader.h"
 #include "pkg/detect_branch.h"
 #include "pkg/load_deps.h"
-#include "pkg/status.h"
+#include "pkg/print_status.h"
 #include "pkg/update_deps.h"
 
 namespace fs = boost::filesystem;

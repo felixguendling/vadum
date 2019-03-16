@@ -1,13 +1,8 @@
 #include "pkg/status.h"
 
-#include <set>
 #include <sstream>
 #include <string>
-#include <vector>
 
-#include "fmt/color.h"
-
-#include "pkg/dependency_loader.h"
 #include "pkg/exec.h"
 #include "pkg/git.h"
 
@@ -29,35 +24,26 @@ struct git_status {
   std::vector<std::string> changed_;
 };
 
-void print_status(fs::path const& repo, fs::path const& deps_root) {
-  dependency_loader l{deps_root};
-  l.retrieve(repo);
-
-  std::set<dep*> marked;
-  for (auto const& d : l.get_all()) {
-    if (auto const s = git_status(d);
-        !s.clean() || get_commit(d->path_) != d->commit_) {
-      auto const rec_preds = d->recursive_preds();
-      marked.insert(d);
-      marked.insert(begin(rec_preds), end(rec_preds));
+std::map<dep*, status> get_status(std::vector<dep*> const& deps) {
+  std::map<dep*, status> dep_status;
+  for (auto const& d : deps) {
+    auto const s = git_status(d);
+    auto const current_commit = get_commit(d->path_);
+    auto const commited = current_commit != d->commit_;
+    if (!s.clean() || commited) {
+      dep_status[d].commited_change_ = commited;
+      dep_status[d].uncommited_change_ = !s.clean();
+      if (commited) {
+        dep_status[d].new_commit_ = current_commit;
+        for (auto const& pred : d->recursive_preds()) {
+          dep_status[pred].recursive_change_ = true;
+        }
+      }
+    } else {
+      dep_status[d];
     }
   }
-
-  std::function<void(dep*, int)> print_dep = [&](dep* d, int indent) {
-    auto const name = d->name();
-    if (marked.find(d) == end(marked)) {
-      fmt::print("{:>{}}\n", name, indent * 2 + name.length());
-    } else {
-      fmt::print(fg(fmt::terminal_color::red), "{:>{}}\n", name,
-                 indent * 2 + name.length());
-    }
-
-    for (auto const& s : d->succs_) {
-      print_dep(s, indent + 1);
-    }
-  };
-
-  print_dep(l.get_all().front(), 0);
+  return dep_status;
 }
 
 }  // namespace pkg
