@@ -30,17 +30,16 @@ std::map<dep*, status> get_status(std::vector<dep*> const& deps) {
     auto const s = git_status(d);
     auto const current_commit = get_commit(d->path_);
     auto const commited = current_commit != d->commit_;
+    auto& dep_stat = dep_status[d];
     if (!s.clean() || commited) {
-      dep_status[d].commited_change_ = commited;
-      dep_status[d].uncommited_change_ = !s.clean();
+      dep_stat.commited_change_ = commited;
+      dep_stat.uncommited_change_ = !s.clean();
       if (commited) {
-        dep_status[d].new_commit_ = current_commit;
+        dep_stat.new_commit_ = current_commit;
         for (auto const& pred : d->recursive_preds()) {
           dep_status[pred].recursive_change_ = true;
         }
       }
-    } else {
-      dep_status[d];
     }
   }
   return dep_status;

@@ -49,9 +49,7 @@ std::vector<dep*> dependency_loader::sorted() {
 
     auto d = (*next);
     written.emplace(d);
-    if (d->name() != ROOT) {
-      sorted.emplace_back(d);
-    }
+    sorted.emplace_back(d);
     all.erase(next);
   }
   return sorted;

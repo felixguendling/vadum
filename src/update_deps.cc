@@ -4,8 +4,6 @@
 
 #include "fmt/format.h"
 
-#include "fmt/ostream.h"
-
 #include "pkg/dependency_loader.h"
 #include "pkg/git.h"
 #include "pkg/status.h"
@@ -32,14 +30,16 @@ void update_deps(fs::path const& repo, fs::path const& deps_root) {
     }
 
     if (s.commited_change_) {
+      fmt::print("{}: new commit {}\n", d->name(), s.new_commit_);
       d->commit_ = s.new_commit_;
     }
 
     if (s.recursive_change_) {
+      fmt::print("{}: updating dependencies\n", d->name());
       d->write_pkg_file();
+      d->commit_ = commit(d->path_, "update dependencies");
+      push(d->path_);
     }
-
-    d->commit_ = commit(d->path_, "update dependencies");
   }
 }
 

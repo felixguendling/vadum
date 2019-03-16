@@ -18,11 +18,18 @@ void print_status(fs::path const& repo, fs::path const& deps_root) {
   auto const dep_status = get_status(l.get_all());
   std::function<void(dep*, int)> print_dep = [&](dep* d, int indent) {
     auto const name = d->name();
-    if (dep_status.at(d).unchanged()) {
-      fmt::print("{:>{}}\n", name, indent * 2 + name.length());
+    auto const& s = dep_status.at(d);
+
+    if (s.commited_change_ || s.recursive_change_) {
+      auto const color = s.commited_change_ && s.recursive_change_
+                             ? fmt::terminal_color::magenta
+                             : s.commited_change_ ? fmt::terminal_color::red
+                                                  : fmt::terminal_color::blue;
+      fmt::print(fg(color), "{:>{}}{}\n", name, indent * 2 + name.length(),
+                 s.uncommited_change_ ? '*' : ' ');
     } else {
-      fmt::print(fg(fmt::terminal_color::red), "{:>{}}\n", name,
-                 indent * 2 + name.length());
+      fmt::print("{:>{}}{}\n", name, indent * 2 + name.length(),
+                 s.uncommited_change_ ? '*' : ' ');
     }
 
     for (auto const& s : d->succs_) {
