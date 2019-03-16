@@ -16,15 +16,18 @@ dep::dep(boost::filesystem::path const& deps_root, std::string url,
       branch_{std::move(branch)} {}
 
 void dep::write_pkg_file() const {
+  std::vector<dep*> succs{begin(succs_), end(succs_)};
+  std::sort(begin(succs), end(succs),
+            [](auto const* a, auto const* b) { return a->name() < b->name(); });
+
   std::ofstream f{pkg_file().string().c_str()};
-  for (auto const s : succs_) {
+  for (auto const s : succs) {
     detect_branch(s);
     f << "[" << s->name() << "]\n"  //
       << "  url=" << s->url_ << "\n"  //
       << "  branch=" << s->branch_ << "\n"  //
       << "  commit=" << s->commit_ << "\n";
   }
-  f << "\n";
 }
 
 dep dep::root(boost::filesystem::path const& root_repo) {

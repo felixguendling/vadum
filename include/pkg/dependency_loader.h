@@ -23,6 +23,8 @@ public:
 
   void retrieve(boost::filesystem::path const&,
                 iteration_fn_t const& = [](dep*) {});
+
+  dep* root();
   std::vector<dep*> sorted();
   std::vector<dep*> get_all() const;
 
