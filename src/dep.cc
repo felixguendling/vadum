@@ -16,7 +16,7 @@ dep::dep(boost::filesystem::path const& deps_root, std::string url,
       branch_{std::move(branch)} {}
 
 void dep::write_pkg_file() const {
-  std::ofstream f{pkg_file().c_str()};
+  std::ofstream f{pkg_file().string().c_str()};
   for (auto const s : succs_) {
     detect_branch(s);
     f << "[" << s->name() << "]\n"  //
