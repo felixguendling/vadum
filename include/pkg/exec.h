@@ -1,7 +1,12 @@
 #pragma once
 
-#include "boost/filesystem/path.hpp"
-#include "boost/process.hpp"
+#include <sstream>
+
+#include "boost/filesystem.hpp"
+
+#include <boost/process/child.hpp>
+#include <boost/process/io.hpp>
+#include <boost/process/start_dir.hpp>
 
 #include "fmt/format.h"
 
