@@ -8,6 +8,7 @@
 
 #include "pkg/dependency_loader.h"
 #include "pkg/git.h"
+#include "pkg/name_from_url.h"
 #include "pkg/read_deps.h"
 #include "pkg/write_deps.h"
 
@@ -81,7 +82,8 @@ void update_deps(fs::path const& repo, fs::path const& deps_root) {
     }
   }
 
-  update_revs(repo, dep::root(), new_revs, false);
+  auto root = dep::root(deps_root);
+  update_revs(repo, &root, new_revs, false);
 }
 
 }  // namespace pkg
