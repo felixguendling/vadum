@@ -9,6 +9,7 @@
 
 #include "pkg/dependency_loader.h"
 #include "pkg/detect_branch.h"
+#include "pkg/exec.h"
 #include "pkg/git.h"
 
 namespace fs = boost::filesystem;

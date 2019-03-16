@@ -1,38 +1,20 @@
 #pragma once
 
-#include "utl/erase.h"
+#include <string>
+
+#include "boost/filesystem/path.hpp"
 
 #include "pkg/dep.h"
-#include "pkg/exec.h"
 
 namespace pkg {
 
-inline void git_clone(dep const* d) {
-  if (!boost::filesystem::is_directory(d->path_.parent_path())) {
-    boost::filesystem::create_directories(d->path_.parent_path());
-  }
+void git_clone(dep const* d);
 
-  exec(d->path_.parent_path(), "git clone {} {}", d->url_,
-       boost::filesystem::absolute(d->path_).string());
-  exec(d->path_, "git checkout {}", d->commit_);
-  exec(d->path_, "git submodule update --init --recursive");
-}
+std::string get_commit(boost::filesystem::path const& p,
+                       std::string const& target = "HEAD");
 
-inline std::string get_commit(boost::filesystem::path const& p,
-                              std::string const& target = "HEAD") {
-  auto out = exec(p, "git rev-parse {}", target).out_;
-  utl::erase(out, '\n');
-  return out;
-}
+std::string commit(boost::filesystem::path const& p, std::string const& msg);
 
-inline std::string commit(boost::filesystem::path const& p,
-                          std::string const& msg) {
-  constexpr auto const PKG_FILE = ".pkg";
-  exec(p, "git add {}", PKG_FILE);
-  exec(p, "git commit -m \"{}\"", msg);
-  return get_commit(p);
-}
-
-inline void push(boost::filesystem::path const& p) { exec(p, "git push"); }
+void push(boost::filesystem::path const& p);
 
 }  // namespace pkg
