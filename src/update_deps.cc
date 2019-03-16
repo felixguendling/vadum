@@ -10,7 +10,6 @@
 #include "pkg/git.h"
 #include "pkg/name_from_url.h"
 #include "pkg/read_deps.h"
-#include "pkg/write_deps.h"
 
 namespace fs = boost::filesystem;
 
@@ -27,10 +26,7 @@ std::string update_revs(fs::path const& deps_root, dep* d,
         d.commit_ = it->second;
       }
     }
-
-    std::ofstream of{(deps_root / d->name() / PKG_FILE).string().c_str()};
-    write_deps(of, deps);
-    of.close();
+    d->write_pkg_file();
   }
 
   std::cout << "  commiting changes in " << (deps_root / d->name()) << "\n";
@@ -39,7 +35,7 @@ std::string update_revs(fs::path const& deps_root, dep* d,
   if (do_commit) {
     auto const repo_path = (deps_root / d->name()).string();
     new_rev = commit(repo_path, ".pkg: update dependencies .pkg file");
-    push(repo_path); // XXX directly and unconditionally push here ???
+    push(repo_path);  // XXX directly and unconditionally push here ???
   }
   return new_rev;
 }
