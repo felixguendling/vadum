@@ -55,13 +55,13 @@ exec_result exec(boost::filesystem::path const& working_directory,
   c.wait();
 
   if (c.exit_code() != 0) {
-    auto msg = fmt::format(
-        "COMMAND [{}] failed: \n"
-        "EXIT_CODE {}\n"
-        "OUTPUT:\n{}\n"
-        "ERROR:\n{}\n",
-        cmd.c_str(), c.exit_code(), out_ss.str().c_str(), err_ss.str().c_str());
-    throw std::runtime_error(msg);
+    throw std::runtime_error(
+        fmt::format("COMMAND [{}] in [{}] failed: \n"
+                    "EXIT_CODE {}\n"
+                    "OUTPUT:\n{}\n"
+                    "ERROR:\n{}\n",
+                    cmd, working_directory.string(), c.exit_code(),
+                    out_ss.str(), err_ss.str()));
   }
 
   exec_result r;
