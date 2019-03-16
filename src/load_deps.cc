@@ -20,6 +20,7 @@ void load_deps(fs::path const& repo, fs::path const& deps_root) {
   l.retrieve(repo, [](dep* d) {
     if (fs::is_directory(d->path_)) {
       fmt::print("already cloned: {}\n", d->name());
+      // XXX maybe pull
     } else {
       fmt::print("cloning: {}\n", d->name());
       git_clone(d);
