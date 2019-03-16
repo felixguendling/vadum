@@ -59,7 +59,7 @@ std::vector<dep> read_deps_new(fs::path const& deps_root,
 }
 
 std::optional<std::string> read_file(fs::path const& path) {
-  std::ifstream f{path.c_str(), std::ios::binary | std::ios::ate};
+  std::ifstream f{path.string().c_str(), std::ios::binary | std::ios::ate};
   f.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
   auto const size = f.tellg();

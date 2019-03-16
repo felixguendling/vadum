@@ -1,7 +1,12 @@
 #pragma once
 
-#include "boost/filesystem/path.hpp"
-#include "boost/process.hpp"
+#include <sstream>
+
+#include "boost/filesystem.hpp"
+
+#include <boost/process/child.hpp>
+#include <boost/process/io.hpp>
+#include <boost/process/start_dir.hpp>
 
 #include "fmt/format.h"
 
@@ -50,11 +55,13 @@ exec_result exec(boost::filesystem::path const& working_directory,
   c.wait();
 
   if (c.exit_code() != 0) {
-    printf("COMMAND [%s] failed\n", cmd.c_str());
-    printf("ERROR %d\n", c.exit_code());
-    printf("OUTPUT:\n%s\n", out_ss.str().c_str());
-    printf("ERROR:\n%s\n", err_ss.str().c_str());
-    throw std::runtime_error("exit code != 0");
+    auto msg = fmt::format(
+        "COMMAND [{}] failed: \n"
+        "EXIT_CODE {}\n"
+        "OUTPUT:\n{}\n"
+        "ERROR:\n{}\n",
+        cmd.c_str(), c.exit_code(), out_ss.str().c_str(), err_ss.str().c_str());
+    throw std::runtime_error(msg);
   }
 
   exec_result r;

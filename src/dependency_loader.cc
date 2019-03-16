@@ -31,6 +31,8 @@ void dependency_loader::retrieve(
   retrieve(deps_[ROOT] = d.get(), iterate);
 }
 
+dep* dependency_loader::root() { return deps_.at(ROOT); }
+
 std::vector<dep*> dependency_loader::sorted() {
   auto written = std::set<dep*>{};
   auto sorted = std::vector<dep*>{};
@@ -47,6 +49,9 @@ std::vector<dep*> dependency_loader::sorted() {
 
     auto d = (*next);
     written.emplace(d);
+    if (d->name() != ROOT) {
+      sorted.emplace_back(d);
+    }
     all.erase(next);
   }
   return sorted;

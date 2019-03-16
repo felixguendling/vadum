@@ -8,6 +8,10 @@
 namespace pkg {
 
 inline void git_clone(dep const* d) {
+  if (!boost::filesystem::is_directory(d->path_.parent_path())) {
+    boost::filesystem::create_directories(d->path_.parent_path());
+  }
+
   exec(d->path_.parent_path(), "git clone {} {}", d->url_,
        boost::filesystem::absolute(d->path_).string());
   exec(d->path_, "git checkout {}", d->commit_);

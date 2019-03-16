@@ -4,6 +4,8 @@
 
 #include "fmt/format.h"
 
+#include "fmt/ostream.h"
+
 #include "pkg/dependency_loader.h"
 #include "pkg/git.h"
 #include "pkg/status.h"
