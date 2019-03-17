@@ -1,5 +1,6 @@
 #include "pkg/read_deps.h"
 
+#include <cctype>
 #include <fstream>
 #include <iostream>
 #include <optional>
