@@ -15,4 +15,4 @@ msvc-release:
     - pkg-test
   artifacts:
     paths:
-      - build-msvc-release/pkg
+      - build-msvc-release/pkg.exe
