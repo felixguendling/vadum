@@ -18,8 +18,7 @@ find_package(Boost COMPONENTS system filesystem REQUIRED)
 link_directories(${Boost_LIBRARY_DIRS})
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
-add_subdirectory(external_lib/utl EXCLUDE_FROM_ALL)
-add_subdirectory(external_lib/fmt EXCLUDE_FROM_ALL)
+add_subdirectory(deps EXCLUDE_FROM_ALL)
 
 file(GLOB_RECURSE pkg-files src/*.cc)
 file(GLOB main-file src/main.cc)

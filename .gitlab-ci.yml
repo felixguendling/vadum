@@ -7,6 +7,7 @@ msvc-release:
     - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
     - cd %WD%
     - set BOOST_ROOT=C:\boost_1_67_0
+    - call bootstrap.bat
     - mkdir build-msvc-release
     - cd build-msvc-release
     - cmake -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel ..
