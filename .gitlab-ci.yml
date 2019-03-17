@@ -1,5 +1,19 @@
-# MSVC release
-msvc-release:
+linux-release:
+  tags:
+    - bionic
+  script:
+    - export BOOST_ROOT=/opt/boost_1_67_0-gcc-7
+    - /bin/bash bootstrap.sh
+    - mkdir -p build-release
+    - cd build-release
+    - cmake -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel ..
+    - ninja pkg pkg-test
+    - ./pkg-test
+  artifacts:
+    paths:
+      - build-release/pkg
+
+windows-release:
   tags:
     - windows
   script:
