@@ -1,4 +1,3 @@
-
 set(pkg-bin "${CMAKE_CURRENT_BINARY_DIR}/dl/pkg")
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
