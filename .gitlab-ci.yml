@@ -3,7 +3,6 @@ linux-release:
     - bionic
   script:
     - export BOOST_ROOT=/opt/boost_1_67_0-gcc-7
-    - /bin/bash bootstrap.sh
     - mkdir -p build
     - cd build
     - cmake -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel ..
@@ -21,7 +20,6 @@ windows-release:
     - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
     - cd %WD%
     - set BOOST_ROOT=C:\boost_1_67_0
-    - call bootstrap.bat
     - mkdir build
     - cd build
     - cmake -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel ..
