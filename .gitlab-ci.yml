@@ -4,8 +4,8 @@ linux-release:
   script:
     - export BOOST_ROOT=/opt/boost_1_67_0-gcc-7
     - /bin/bash bootstrap.sh
-    - mkdir -p build-release
-    - cd build-release
+    - mkdir -p build
+    - cd build
     - cmake -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel ..
     - ninja pkg pkg-test
     - ./pkg-test
@@ -22,8 +22,8 @@ windows-release:
     - cd %WD%
     - set BOOST_ROOT=C:\boost_1_67_0
     - call bootstrap.bat
-    - mkdir build-msvc-release
-    - cd build-msvc-release
+    - mkdir build
+    - cd build
     - cmake -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel ..
     - ninja pkg pkg-test
     - pkg-test
