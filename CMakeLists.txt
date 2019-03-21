@@ -19,7 +19,7 @@ link_directories(${Boost_LIBRARY_DIRS})
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
 include("cmake/pkg.cmake")
-#add_subdirectory(deps EXCLUDE_FROM_ALL)
+add_subdirectory(deps EXCLUDE_FROM_ALL)
 
 file(GLOB_RECURSE pkg-files src/*.cc)
 file(GLOB main-file src/main.cc)
