@@ -42,6 +42,9 @@ void load_deps(fs::path const& repo, fs::path const& deps_root) {
   of << "project(" + deps_root.string() << ")\n"
      << "cmake_minimum_required(VERSION 3.10)\n\n";
   for (auto const& v : l.sorted()) {
+    if (v->url_ == ROOT) {
+      continue;
+    } 
     of << "add_subdirectory(" << v->name() << " EXCLUDE_FROM_ALL)\n";
   }
 }
