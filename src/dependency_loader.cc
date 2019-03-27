@@ -1,5 +1,6 @@
 #include "pkg/dependency_loader.h"
 
+#include <cstdio>
 #include <iostream>
 #include <set>
 #include <sstream>
@@ -70,10 +71,10 @@ void dependency_loader::retrieve(
     });
 
     if (succ->commit_ != d.commit_) {
-      fmt::print("non-matching ref: {}\n", d.url_);
-      fmt::print("{} from: {}\n", d.commit_, pred->url_);
+      fmt::print(stderr, "non-matching ref: {}\n", d.url_);
+      fmt::print(stderr, "{} from: {}\n", d.commit_, pred->url_);
       for (auto const* succ_pred : succ->preds_) {
-        fmt::print("{} from: {}\n", succ->commit_, succ_pred->url_);
+        fmt::print(stderr, "{} from: {}\n", succ->commit_, succ_pred->url_);
       }
       throw std::runtime_error{"non-matching ref"};
     }
