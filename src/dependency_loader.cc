@@ -69,20 +69,7 @@ void dependency_loader::retrieve(
       retrieve(next, iterate);
       return next;
     });
-<<<<<<< HEAD
     succ->referenced_commits_[{d.branch_, d.commit_}].push_back(pred);
-=======
-
-    if (succ->commit_ != d.commit_) {
-      fmt::print(stderr, "non-matching ref: {}\n", d.url_);
-      fmt::print(stderr, "{} from: {}\n", d.commit_, pred->url_);
-      for (auto const* succ_pred : succ->preds_) {
-        fmt::print(stderr, "{} from: {}\n", succ->commit_, succ_pred->url_);
-      }
-      throw std::runtime_error{"non-matching ref"};
-    }
-
->>>>>>> 21b39a17a60eeacd99c2c13d07ecefa7d17cf219
     succ->preds_.insert(pred);
     pred->succs_.insert(succ);
   }
