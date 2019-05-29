@@ -11,11 +11,8 @@ namespace fs = boost::filesystem;
 
 namespace pkg {
 
-void print_status(fs::path const& repo, fs::path const& deps_root) {
-  dependency_loader l{deps_root};
-  l.retrieve(repo);
-
-  auto const dep_status = get_status(l.get_all());
+void print_status(std::vector<dep*> const& all) {
+  auto const dep_status = get_status(all);
   std::function<void(dep*, int)> print_dep = [&](dep* d, int indent) {
     auto const name = d->name();
     auto const& s = dep_status.at(d);
@@ -37,7 +34,15 @@ void print_status(fs::path const& repo, fs::path const& deps_root) {
     }
   };
 
-  print_dep(l.get_all().front(), 0);
+  if (!all.empty()) {
+    print_dep(all.front(), 0);
+  }
+}
+
+void print_status(fs::path const& repo, fs::path const& deps_root) {
+  dependency_loader l{deps_root};
+  l.retrieve(repo);
+  print_status(l.get_all());
 }
 
 }  // namespace pkg

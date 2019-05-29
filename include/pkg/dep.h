@@ -1,7 +1,10 @@
 #pragma once
 
+#include <map>
 #include <set>
 #include <string>
+
+#include "utl/struct/comparable.h"
 
 #include "boost/filesystem/path.hpp"
 
@@ -37,6 +40,12 @@ struct dep {
   std::string url_, commit_, branch_;
   std::set<dep*> preds_;
   std::set<dep*> succs_;
+
+  struct branch_commit {
+    MAKE_COMPARABLE()
+    std::string branch_, commit_;
+  };
+  std::map<branch_commit, std::vector<dep*>> referenced_commits_;
 };
 
 }  // namespace pkg

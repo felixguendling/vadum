@@ -18,13 +18,13 @@ namespace pkg {
 
 void load_deps(fs::path const& repo, fs::path const& deps_root) {
   dependency_loader l{deps_root};
-  l.retrieve(repo, [](dep* d) {
+  l.retrieve(repo, [&](dep* d) {
     if (fs::is_directory(d->path_)) {
       fmt::print("already cloned: {}\n", d->name());
 
       auto const commit = get_commit(d->path_);
       if (d->commit_ != commit) {
-        fmt::print("[{}] warning:\n  required={}\n  current={}", d->name(),
+        fmt::print("[{}] warning:\n  required={}\n  current={}\n", d->name(),
                    d->commit_, commit);
       }
     } else {
@@ -32,8 +32,9 @@ void load_deps(fs::path const& repo, fs::path const& deps_root) {
       git_clone(d);
     }
 
-    if (!d->branch_.empty() &&
-        get_commit(d->path_, "remotes/origin/" + d->branch_) == d->commit_) {
+    auto const branch_head_commit =
+        get_commit(d->path_, "remotes/origin/" + d->branch_);
+    if (!d->branch_.empty() && branch_head_commit == d->commit_) {
       exec(d->path_, "git checkout {}", d->branch_);
     }
   });
@@ -44,7 +45,7 @@ void load_deps(fs::path const& repo, fs::path const& deps_root) {
   for (auto const& v : l.sorted()) {
     if (v->url_ == ROOT) {
       continue;
-    } 
+    }
     of << "add_subdirectory(" << v->name() << " EXCLUDE_FROM_ALL)\n";
   }
 }

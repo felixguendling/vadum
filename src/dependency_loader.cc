@@ -45,7 +45,7 @@ std::vector<dep*> dependency_loader::sorted() {
         return written.find(s) != end(written);
       });
     });
-    verify(next != end(all), "cycle detected");
+    utl::verify(next != end(all), "cycle detected");
 
     auto d = (*next);
     written.emplace(d);
@@ -68,16 +68,7 @@ void dependency_loader::retrieve(
       retrieve(next, iterate);
       return next;
     });
-
-    if (succ->commit_ != d.commit_) {
-      fmt::print("non-matching ref: {}\n", d.url_);
-      fmt::print("{} from: {}\n", d.commit_, pred->url_);
-      for (auto const* succ_pred : succ->preds_) {
-        fmt::print("{} from: {}\n", succ->commit_, succ_pred->url_);
-      }
-      throw std::runtime_error{"non-matching ref"};
-    }
-
+    succ->referenced_commits_[{d.branch_, d.commit_}].push_back(pred);
     succ->preds_.insert(pred);
     pred->succs_.insert(succ);
   }
