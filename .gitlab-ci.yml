@@ -2,7 +2,7 @@ linux-release:
   tags:
     - bionic
   script:
-    - export BOOST_ROOT=/opt/boost_1_70_0-gcc-7
+    - export BOOST_ROOT=/opt/boost_1_70_0-clang-8
     - mkdir -p build
     - cd build
     - cmake -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel ..
