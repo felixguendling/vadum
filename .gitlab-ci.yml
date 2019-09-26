@@ -2,6 +2,7 @@ linux-release:
   tags:
     - bionic
   script:
+    - git submodule update --init --recursive
     - export BOOST_ROOT=/opt/boost_1_70_0-clang-8
     - mkdir -p build
     - cd build
@@ -16,6 +17,7 @@ windows-release:
   tags:
     - windows
   script:
+    - git submodule update --init --recursive
     - set WD=%cd%
     - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
     - cd %WD%
