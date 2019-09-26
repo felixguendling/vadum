@@ -1,6 +1,6 @@
 #include "pkg/name_from_url.h"
 
-#include "utl/parser/util.h"
+#include "utl/verify.h"
 
 #include "pkg/dep.h"
 
