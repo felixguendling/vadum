@@ -22,7 +22,7 @@ void git_clone(dep const* d) {
        boost::filesystem::absolute(d->path_).string(), d->branch_);
   exec(d->path_, "git submodule update --init --recursive");
   git_attach(d);
-  exec(d->path_, "dir");
+  std::cout << exec(d->path_, "dir").out_ << "\n";
 }
 
 void git_attach(dep const* d) {
