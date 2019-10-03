@@ -12,14 +12,23 @@
 namespace pkg {
 
 void git_clone(dep const* d) {
-  if (!boost::filesystem::is_directory(d->path_.parent_path())) {
-    boost::filesystem::create_directories(d->path_.parent_path());
+  auto const bare_repo_path = d->bare_repo_path();
+  if (!boost::filesystem::is_directory(bare_repo_path)) {
+    exec(d->path_.parent_path(), "git clone --bare {} {}", d->url_,
+         bare_repo_path.string());
   }
-
-  exec(d->path_.parent_path(), "git clone {} {}", d->url_,
-       boost::filesystem::absolute(d->path_).string());
-  exec(d->path_, "git checkout {}", d->commit_);
+  exec(bare_repo_path, "git worktree prune");
+  exec(bare_repo_path, "git worktree add --checkout {} {}",
+       boost::filesystem::absolute(d->path_).string(), d->branch_);
   exec(d->path_, "git submodule update --init --recursive");
+  git_attach(d);
+}
+
+void git_attach(dep const* d) {
+  auto const branch_head_commit = get_commit(d->path_, d->branch_);
+  if (!d->branch_.empty() && branch_head_commit != d->commit_) {
+    exec(d->path_, "git checkout {}", d->commit_);
+  }
 }
 
 std::string get_commit(boost::filesystem::path const& p,

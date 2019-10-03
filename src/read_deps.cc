@@ -15,34 +15,8 @@ namespace fs = boost::filesystem;
 
 namespace pkg {
 
-std::vector<dep> read_deps_old(fs::path const& deps_root,
-                               std::string const& file_content) {
-  std::stringstream ss;
-  ss.str(file_content);
-
-  std::vector<dep> deps;
-  std::string line, url, commit, branch;
-  while (true) {
-    std::string line;
-    if (!std::getline(ss, line)) {
-      break;
-    }
-    if (line.empty()) {
-      continue;
-    }
-
-    std::stringstream line_ss;
-    line_ss.str(line);
-    line_ss >> url >> commit >> branch;
-
-    deps.emplace_back(deps_root, url, commit, branch);
-  }
-
-  return deps;
-}
-
-std::vector<dep> read_deps_new(fs::path const& deps_root,
-                               std::string const& file_content) {
+std::vector<dep> read_deps(fs::path const& deps_root,
+                           std::string const& file_content) {
   namespace pt = boost::property_tree;
 
   std::stringstream ss;
@@ -70,20 +44,6 @@ std::optional<std::string> read_file(fs::path const& path) {
   buffer.resize(size);
 
   return f.read(&buffer[0], size) ? std::make_optional(buffer) : std::nullopt;
-}
-
-std::vector<dep> read_deps(fs::path const& deps_root,
-                           std::string const& file_content) {
-  if (file_content.empty()) {
-    return {};
-  }
-
-  auto const first_char_it =
-      std::find_if(begin(file_content), end(file_content),
-                   [](auto const c) { return !std::isspace(c); });
-  return (first_char_it == end(file_content) || *first_char_it != '[')
-             ? read_deps_old(deps_root, file_content)
-             : read_deps_new(deps_root, file_content);
 }
 
 std::vector<dep> read_deps(fs::path const& deps_root, dep const* d) {

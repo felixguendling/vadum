@@ -11,8 +11,8 @@
 
 #include "utl/erase.h"
 #include "utl/get_or_create.h"
-#include "utl/verify.h"
 #include "utl/to_vec.h"
+#include "utl/verify.h"
 
 #include "pkg/git.h"
 #include "pkg/read_deps.h"
@@ -25,12 +25,6 @@ dependency_loader::dependency_loader(fs::path deps_root)
     : deps_root_{std::move(deps_root)} {}
 
 dependency_loader::~dependency_loader() = default;
-
-void dependency_loader::retrieve(
-    fs::path const& p, dependency_loader::iteration_fn_t const& iterate) {
-  auto& d = dep_mem_.emplace_back(std::make_unique<dep>(dep::root(p)));
-  retrieve(deps_[ROOT] = d.get(), iterate);
-}
 
 dep* dependency_loader::root() { return deps_.at(ROOT); }
 
@@ -61,6 +55,18 @@ std::vector<dep*> dependency_loader::get_all() const {
 }
 
 void dependency_loader::retrieve(
+    fs::path const& p, dependency_loader::iteration_fn_t const& iterate) {
+  auto& d = dep_mem_.emplace_back(std::make_unique<dep>(dep::root(p)));
+  retrieve(deps_[ROOT] = d.get(), iterate);
+}
+
+void dependency_loader::retrieve_async(
+    fs::path const& p, dependency_loader::async_iteration_fn_t const& iterate) {
+  auto& d = dep_mem_.emplace_back(std::make_unique<dep>(dep::root(p)));
+  retrieve_async(deps_[ROOT] = d.get(), iterate);
+}
+
+void dependency_loader::retrieve(
     dep* pred, dependency_loader::iteration_fn_t const& iterate) {
   for (auto const& d : read_deps(deps_root_, pred)) {
     auto succ = utl::get_or_create(deps_, d.url_, [&]() {
@@ -69,6 +75,23 @@ void dependency_loader::retrieve(
       retrieve(next, iterate);
       return next;
     });
+    succ->referenced_commits_[{d.branch_, d.commit_}].push_back(pred);
+    succ->preds_.insert(pred);
+    pred->succs_.insert(succ);
+  }
+}
+
+void dependency_loader::retrieve_async(
+    dep* pred, dependency_loader::async_iteration_fn_t const& iterate) {
+  for (auto const& d : read_deps(deps_root_, pred)) {
+    auto succ_it = deps_.find(d.url_);
+    if (succ_it == end(deps_)) {
+      auto next = dep_mem_.emplace_back(std::make_unique<dep>(d)).get();
+      iterate(next, [iterate, this](dep* d) { retrieve_async(d, iterate); });
+      std::tie(succ_it, std::ignore) = deps_.emplace(d.url_, next);
+    }
+
+    auto succ = succ_it->second;
     succ->referenced_commits_[{d.branch_, d.commit_}].push_back(pred);
     succ->preds_.insert(pred);
     pred->succs_.insert(succ);

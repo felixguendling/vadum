@@ -4,6 +4,7 @@
 #include <ostream>
 
 #include "pkg/detect_branch.h"
+#include "pkg/get_home_path.h"
 #include "pkg/git.h"
 #include "pkg/name_from_url.h"
 
@@ -60,5 +61,9 @@ bool dep::is_root() const { return url_ == ROOT; }
 boost::filesystem::path dep::pkg_file() const { return path_ / PKG_FILE; }
 
 std::string dep::name() const { return name_from_url(url_); }
+
+boost::filesystem::path dep::bare_repo_path() const {
+  return get_home_path() / ".pkg" / name();
+}
 
 }  // namespace pkg

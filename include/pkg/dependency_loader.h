@@ -17,12 +17,15 @@ namespace pkg {
 struct dependency_loader {
 public:
   using iteration_fn_t = std::function<void(dep*)>;
+  using async_iteration_fn_t = std::function<void(dep*, iteration_fn_t)>;
 
   explicit dependency_loader(boost::filesystem::path deps_root);
   ~dependency_loader();
 
   void retrieve(boost::filesystem::path const&,
                 iteration_fn_t const& = [](dep*) {});
+  void retrieve_async(boost::filesystem::path const&,
+                      async_iteration_fn_t const&);
 
   dep* root();
   std::vector<dep*> sorted();
@@ -30,6 +33,7 @@ public:
 
 private:
   void retrieve(dep* pred, iteration_fn_t const&);
+  void retrieve_async(dep* pred, async_iteration_fn_t const&);
 
   boost::filesystem::path deps_root_;
   std::map<std::string, dep*> deps_;
