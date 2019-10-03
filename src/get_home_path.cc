@@ -3,7 +3,7 @@
 #include <mutex>
 
 #ifdef _MSC_VER
-#include <shlobj.h>
+#include <userenv.h>
 #include <windows.h>
 #else
 #include <pwd.h>
@@ -19,12 +19,16 @@ boost::filesystem::path get_home_path() {
   std::scoped_lock l{m};
 
 #ifdef _MSC_VER
-  char path[MAX_PATH];
-  if (SHGetFolderPathA(NULL, CSIDL_PROFILE, NULL, 0, path) == S_OK) {
-    return path;
-  } else {
-    throw std::runtime_error{"unable to retrieve home path"};
-  }
+  HANDLE process = 0;
+  OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &process);
+
+  TCHAR home_dir_buf[MAX_PATH] = {0};
+  DWORD size = MAX_PATH;
+  GetUserProfileDirectory(process, home_dir_buf, &size);
+
+  CloseHandle(process);
+
+  return std::string{home_dir_buf};
 #else
   auto const pw = getpwuid(getuid());
   if (pw != nullptr) {

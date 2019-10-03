@@ -34,6 +34,9 @@ target_link_libraries(pkglib
   ${Boost_PROPERTYTREE_LIBRARY}
   ${CMAKE_THREAD_LIBS_INIT}
 )
+if (MSVC)
+  target_link_libraries(pkglib Userenv.lib)
+endif()
 set_property(TARGET pkglib PROPERTY CXX_STANDARD 17)
 
 add_executable(pkg src/main.cc)

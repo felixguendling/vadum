@@ -21,6 +21,10 @@ namespace fs = boost::filesystem;
 namespace pkg {
 
 void load_deps(fs::path const& repo, fs::path const& deps_root) {
+  if (!boost::filesystem::is_directory(deps_root)) {
+    boost::filesystem::create_directories(deps_root);
+  }
+
   boost::asio::io_service ios;
   boost::asio::io_service::strand main{ios};
 
@@ -48,7 +52,7 @@ void load_deps(fs::path const& repo, fs::path const& deps_root) {
     });
   });
 
-  std::vector<std::thread> worker(8);
+  std::vector<std::thread> worker(10);
   std::for_each(begin(worker), end(worker),
                 [&](auto& w) { w = std::thread{[&] { ios.run(); }}; });
   std::for_each(begin(worker), end(worker), [&](auto& w) { w.join(); });
