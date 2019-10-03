@@ -11,8 +11,6 @@ namespace pkg {
 
 exec_result exec(boost::filesystem::path const& working_directory,
                  std::string const& cmd) {
-  std::cout << "[" << working_directory << "] " << cmd << std::endl;
-
   namespace bp = boost::process;
   try {
     bp::ipstream out, err;
