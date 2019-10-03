@@ -2,8 +2,11 @@
 #include <fstream>
 #include <iostream>
 
+#include "boost/filesystem/operations.hpp"
+
 #include "pkg/dependency_loader.h"
 #include "pkg/detect_branch.h"
+#include "pkg/get_home_path.h"
 #include "pkg/load_deps.h"
 #include "pkg/print_status.h"
 #include "pkg/resolve_conflicts.h"
@@ -21,7 +24,8 @@ int main(int argc, char** argv) {
         "  -u    update  [recursive on new commit]\n"
         "  -s    status  [print status]\n"
         "  -r    resolve [resolve conflicts]\n"
-        "  -g    upgrade [switch to branch head]\n",
+        "  -g    upgrade [switch to branch head]\n"
+        "  -c    cleanup [remove ~/.pkg]\n",
         argv[0]);
     return 0;
   } else if (std::strcmp(argv[1], "-u") == 0) {
@@ -34,5 +38,8 @@ int main(int argc, char** argv) {
     resolve_conflicts(fs::path{"."}, fs::path("deps"));
   } else if (std::strcmp(argv[1], "-g") == 0) {
     upgrade_deps(fs::path{"."}, fs::path("deps"));
+  } else if (std::strcmp(argv[1], "-c") == 0) {
+    boost::filesystem::remove_all(get_home_path() / ".pkg");
+    boost::filesystem::remove_all(fs::path("deps"));
   }
 }
