@@ -1,14 +1,19 @@
 linux-release:
   tags:
-    - bionic
+    - disco
   script:
+    - ccache -z
+    - export PATH=/usr/lib/ccache:$PATH
+    - export CXX=g++-9
+    - export CC=gcc-9
+    - export BOOST_ROOT=~/boost_1_71_0
     - git submodule update --init --recursive
-    - export BOOST_ROOT=/opt/boost_1_70_0-clang-8
     - mkdir -p build
     - cd build
     - cmake -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel ..
     - ninja pkg pkg-test
     - ./pkg-test
+    - ccache -s
   artifacts:
     paths:
       - build/pkg

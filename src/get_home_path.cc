@@ -25,7 +25,6 @@ boost::filesystem::path get_home_path() {
   } else {
     throw std::runtime_error{"unable to retrieve home path"};
   }
-  return 0;
 #else
   auto const pw = getpwuid(getuid());
   if (pw != nullptr) {
