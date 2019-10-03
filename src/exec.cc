@@ -53,6 +53,10 @@ exec_result exec(boost::filesystem::path const& working_directory,
                       out_ss.str(), err_ss.str()));
     }
 
+    std::cout << "RUN: out=[" << out_ss.str() << "], err=[" << err_ss.str()
+              << "] (working_dir=" << working_directory << ", cmd=" << cmd
+              << ")\n";
+
     exec_result r;
     r.out_ = out_ss.str();
     r.err_ = err_ss.str();
@@ -62,6 +66,11 @@ exec_result exec(boost::filesystem::path const& working_directory,
     exec_result r;
     r.err_ = e.what();
     r.return_code_ = -1;
+
+    std::cout << "EXCEPTION: " << e.what()
+              << " (working_dir=" << working_directory << ", cmd=" << cmd
+              << ")\n";
+
     return r;
   }
 }
