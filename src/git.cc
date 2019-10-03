@@ -1,6 +1,7 @@
 #include "pkg/git.h"
 
 #include <algorithm>
+#include <iostream>
 
 #include "boost/filesystem.hpp"
 
