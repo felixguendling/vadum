@@ -28,7 +28,9 @@ void git_attach(executor& e, dep const* d) {
 
 void git_clone(executor& e, dep const* d) {
   auto const bare_repo_path = d->bare_repo_path();
-  if (!boost::filesystem::is_directory(bare_repo_path)) {
+  if (boost::filesystem::is_directory(bare_repo_path)) {
+    e.exec(bare_repo_path, "git fetch");
+  } else {
     e.exec(d->path_.parent_path(), "git clone --bare {} {}", d->url_,
            bare_repo_path.string());
   }
