@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <mutex>
 #include <thread>
 #include <vector>
 
@@ -28,6 +29,12 @@ void load_deps(fs::path const& repo, fs::path const& deps_root) {
   boost::asio::io_service ios;
   boost::asio::io_service::strand main{ios};
 
+  std::mutex print_mutex;
+  auto const print = [&](auto fn) {
+    std::lock_guard g{print_mutex};
+    fn();
+  };
+
   dependency_loader l{deps_root};
   main.post([&] {
     l.retrieve_async(repo, [&](dep* d, dependency_loader::iteration_fn_t cb) {
@@ -44,8 +51,24 @@ void load_deps(fs::path const& repo, fs::path const& deps_root) {
       } else {
         fmt::print("cloning: {}\n", d->name());
         std::cout << std::flush;
-        ios.post([d_copy = *d, d, &main, cb_mv = std::move(cb)] {
-          git_clone(&d_copy);
+        ios.post([d_copy = *d, d, &main, cb_mv = std::move(cb), &print] {
+          try {
+            git_clone(&d_copy);
+          } catch (std::exception const& e) {
+            print([&]() {
+              fmt::print("CLONE ERROR -- RETRY {}: {}\n", d_copy.name(),
+                         e.what());
+            });
+
+            try {
+              git_clone_clean(&d_copy);
+            } catch (std::exception const& e) {
+              print([&]() {
+                fmt::print("unable to clone dependency {}: {}\n", d_copy.name(),
+                           e.what());
+              });
+            }
+          }
           return main.post([cb_mv_1 = std::move(cb_mv), d] { cb_mv_1(d); });
         });
       }

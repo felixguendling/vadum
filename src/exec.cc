@@ -58,10 +58,10 @@ exec_result exec(boost::filesystem::path const& working_directory,
     r.return_code_ = c.exit_code();
     return r;
   } catch (std::exception const& e) {
-    exec_result r;
-    r.err_ = e.what();
-    r.return_code_ = -1;
-    return r;
+    throw std::runtime_error(
+        fmt::format("COMMAND [{}] in [{}] failed: \n"
+                    "REASON: {}\n",
+                    cmd, working_directory.string(), e.what()));
   }
 }
 

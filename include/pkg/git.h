@@ -17,9 +17,10 @@ struct commit_info {
   dep::branch_commit bc_;
 };
 
-void git_clone(dep const* d);
+void git_clone(dep const*);
+void git_clone_clean(dep const*);
 
-void git_attach(dep const* d);
+void git_attach(dep const*);
 
 std::string get_commit(boost::filesystem::path const& p,
                        std::string const& target = "HEAD");

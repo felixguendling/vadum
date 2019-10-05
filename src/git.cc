@@ -24,6 +24,12 @@ void git_clone(dep const* d) {
   git_attach(d);
 }
 
+void git_clone_clean(dep const* d) {
+  boost::filesystem::remove_all(d->bare_repo_path());
+  boost::filesystem::remove_all(d->path_);
+  git_clone(d);
+}
+
 void git_attach(dep const* d) {
   auto const branch_head_commit = get_commit(d->path_, d->branch_);
   if (!d->branch_.empty() && branch_head_commit != d->commit_) {
