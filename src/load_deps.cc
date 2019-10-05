@@ -46,26 +46,33 @@ void load_deps(fs::path const& repo, fs::path const& deps_root) {
           fmt::print("[{}] warning:\n  required={}\n  current={}\n", d->name(),
                      d->commit_, commit);
         }
-        git_attach(d);
+        executor e;
+        git_attach(e, d);
         return cb(d);
       } else {
         fmt::print("cloning: {}\n", d->name());
         std::cout << std::flush;
         ios.post([d_copy = *d, d, &main, cb_mv = std::move(cb), &print] {
+          executor e;
           try {
-            git_clone(&d_copy);
-          } catch (std::exception const& e) {
-            print([&]() {
-              fmt::print("CLONE ERROR -- RETRY {}: {}\n", d_copy.name(),
-                         e.what());
+            git_clone(e, &d_copy);
+          } catch (std::exception const& ex) {
+            print([&] {
+              fmt::print("*** CLONE ERROR (will retry) {}:\n{}\n",
+                         d_copy.name(), ex.what());
             });
 
             try {
-              git_clone_clean(&d_copy);
-            } catch (std::exception const& e) {
-              print([&]() {
-                fmt::print("unable to clone dependency {}: {}\n", d_copy.name(),
-                           e.what());
+              e.clear();
+              git_clone_clean(e, &d_copy);
+            } catch (std::exception const& ex1) {
+              print([&] {
+                std::cout << "*** RETRY FAILED:\nMAIN ERROR\n"
+                          << ex1.what() << "\n"
+                          << "*** TRACE:\n";
+                for (auto const& r : e.results_) {
+                  std::cout << r << "\n";
+                }
               });
             }
           }

@@ -8,6 +8,7 @@
 #include "boost/filesystem/path.hpp"
 
 #include "pkg/dep.h"
+#include "pkg/exec.h"
 
 namespace pkg {
 
@@ -17,10 +18,10 @@ struct commit_info {
   dep::branch_commit bc_;
 };
 
-void git_clone(dep const*);
-void git_clone_clean(dep const*);
+void git_clone(executor&, dep const*);
+void git_clone_clean(executor&, dep const*);
 
-void git_attach(dep const*);
+void git_attach(executor&, dep const*);
 
 std::string get_commit(boost::filesystem::path const& p,
                        std::string const& target = "HEAD");

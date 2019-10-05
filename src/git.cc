@@ -1,6 +1,7 @@
 #include "pkg/git.h"
 
 #include <algorithm>
+#include <iostream>
 
 #include "boost/filesystem.hpp"
 
@@ -11,37 +12,48 @@
 
 namespace pkg {
 
-void git_clone(dep const* d) {
-  auto const bare_repo_path = d->bare_repo_path();
-  if (!boost::filesystem::is_directory(bare_repo_path)) {
-    exec(d->path_.parent_path(), "git clone --bare {} {}", d->url_,
-         bare_repo_path.string());
-  }
-  exec(bare_repo_path, "git worktree prune");
-  exec(bare_repo_path, "git worktree add --checkout {} {}",
-       boost::filesystem::absolute(d->path_).string(), d->branch_);
-  exec(d->path_, "git submodule update --init --recursive");
-  git_attach(d);
-}
-
-void git_clone_clean(dep const* d) {
-  boost::filesystem::remove_all(d->bare_repo_path());
-  boost::filesystem::remove_all(d->path_);
-  git_clone(d);
-}
-
-void git_attach(dep const* d) {
-  auto const branch_head_commit = get_commit(d->path_, d->branch_);
-  if (!d->branch_.empty() && branch_head_commit != d->commit_) {
-    exec(d->path_, "git checkout {}", d->commit_);
-  }
-}
-
-std::string get_commit(boost::filesystem::path const& p,
+std::string get_commit(executor& e, boost::filesystem::path const& p,
                        std::string const& target) {
   auto out = exec(p, "git rev-parse {}", target).out_;
   utl::erase(out, '\n');
   return out;
+}
+
+void git_attach(executor& e, dep const* d) {
+  auto const branch_head_commit = get_commit(e, d->path_, d->branch_);
+  if (!d->branch_.empty() && branch_head_commit != d->commit_) {
+    e.exec(d->path_, "git checkout {}", d->commit_);
+  }
+}
+
+void git_clone(executor& e, dep const* d) {
+  auto const bare_repo_path = d->bare_repo_path();
+  if (!boost::filesystem::is_directory(bare_repo_path)) {
+    e.exec(d->path_.parent_path(), "git clone --bare {} {}", d->url_,
+           bare_repo_path.string());
+  }
+  e.exec(bare_repo_path, "git worktree prune");
+  e.exec(bare_repo_path, "git worktree add --checkout {} {}",
+         boost::filesystem::absolute(d->path_).string(), d->branch_);
+  e.exec(d->path_, "git submodule update --init --recursive");
+  git_attach(e, d);
+}
+
+void git_clone_clean(executor& e, dep const* d) {
+  boost::filesystem::remove_all(d->bare_repo_path());
+  boost::filesystem::remove_all(d->path_);
+  git_clone(e, d);
+}
+
+void git_attach(dep const* d) {
+  auto e = executor{};
+  git_attach(e, d);
+}
+
+std::string get_commit(boost::filesystem::path const& p,
+                       std::string const& target) {
+  auto e = executor{};
+  return get_commit(e, p, target);
 }
 
 std::string commit(boost::filesystem::path const& p, std::string const& msg) {
@@ -68,7 +80,7 @@ std::vector<commit_info> get_commit_infos(
 bool is_fast_forward(boost::filesystem::path const& p,
                      std::string const& commit1, std::string const& commit2) {
   return exec(p, "git merge-base --is-ancestor {} {}", commit1, commit2)
-             .return_code_ == 0;
+             .exit_code_ == 0;
 }
 
 }  // namespace pkg
