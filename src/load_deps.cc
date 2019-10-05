@@ -52,7 +52,7 @@ void load_deps(fs::path const& repo, fs::path const& deps_root) {
     });
   });
 
-  std::vector<std::thread> worker(10);
+  std::vector<std::thread> worker(5);
   std::for_each(begin(worker), end(worker),
                 [&](auto& w) { w = std::thread{[&] { ios.run(); }}; });
   std::for_each(begin(worker), end(worker), [&](auto& w) { w.join(); });
