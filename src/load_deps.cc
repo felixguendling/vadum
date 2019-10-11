@@ -58,8 +58,7 @@ void load_deps(fs::path const& repo, fs::path const& deps_root) {
             git_clone(e, &d_copy);
           } catch (std::exception const& ex) {
             print([&] {
-              std::cout << "*** TRY FAILED:\nMAIN ERROR\n"
-                        << ex1.what() << "\n";
+              std::cout << "*** TRY FAILED:\nMAIN ERROR\n" << ex.what() << "\n";
 
               if (!e.results_.empty()) {
                 std::cout << "*** TRACE:\n";
