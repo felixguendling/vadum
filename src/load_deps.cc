@@ -58,8 +58,15 @@ void load_deps(fs::path const& repo, fs::path const& deps_root) {
             git_clone(e, &d_copy);
           } catch (std::exception const& ex) {
             print([&] {
-              fmt::print("*** CLONE ERROR (will retry) {}:\n{}\n",
-                         d_copy.name(), ex.what());
+              std::cout << "*** TRY FAILED:\nMAIN ERROR\n"
+                        << ex1.what() << "\n";
+
+              if (!e.results_.empty()) {
+                std::cout << "*** TRACE:\n";
+                for (auto const& r : e.results_) {
+                  std::cout << r << "\n";
+                }
+              }
             });
 
             try {
@@ -70,8 +77,10 @@ void load_deps(fs::path const& repo, fs::path const& deps_root) {
                 std::cout << "*** RETRY FAILED:\nMAIN ERROR\n"
                           << ex1.what() << "\n"
                           << "*** TRACE:\n";
-                for (auto const& r : e.results_) {
-                  std::cout << r << "\n";
+                if (!e.results_.empty()) {
+                  for (auto const& r : e.results_) {
+                    std::cout << r << "\n";
+                  }
                 }
               });
             }
