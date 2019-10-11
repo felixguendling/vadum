@@ -42,8 +42,8 @@ void git_clone(executor& e, dep const* d) {
 }
 
 void git_clone_clean(executor& e, dep const* d) {
-  boost::filesystem::remove_all(d->bare_repo_path());
   boost::filesystem::remove_all(d->path_);
+  boost::filesystem::remove_all(d->bare_repo_path());
   git_clone(e, d);
 }
 
