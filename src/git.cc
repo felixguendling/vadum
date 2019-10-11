@@ -35,7 +35,7 @@ void git_clone(executor& e, dep const* d) {
            bare_repo_path.string());
   }
   e.exec(bare_repo_path, "git worktree prune");
-  e.exec(bare_repo_path, "git worktree add --checkout {} {}",
+  e.exec(bare_repo_path, "git worktree add -f -f --checkout {} {}",
          boost::filesystem::absolute(d->path_).string(), d->branch_);
   e.exec(d->path_, "git submodule update --init --recursive");
   git_attach(e, d);
