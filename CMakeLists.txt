@@ -9,6 +9,7 @@ cmake_minimum_required(VERSION 3.10)
 find_package(Threads)
 
 if (MSVC)
+  add_definitions(/D_WIN32_WINNT=0x0601)
   set(Boost_USE_STATIC_LIBS ON)
   set(Boost_USE_MULTITHREADED ON)
   set(Boost_USE_STATIC_RUNTIME ON)

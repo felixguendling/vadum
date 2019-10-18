@@ -34,7 +34,9 @@ void print_status(std::vector<dep*> const& all) {
     }
   };
 
-  if (!all.empty()) {
+  if (all.empty()) {
+    fmt::print("no dependencies found\n");
+  } else {
     print_dep(all.front(), 0);
   }
 }

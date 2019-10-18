@@ -28,18 +28,24 @@ int main(int argc, char** argv) {
         "  -c    cleanup [remove ~/.pkg]\n",
         argv[0]);
     return 0;
-  } else if (std::strcmp(argv[1], "-u") == 0) {
-    update_deps(fs::path{"."}, fs::path("deps"));
-  } else if (std::strcmp(argv[1], "-l") == 0) {
-    load_deps(fs::path{"."}, fs::path("deps"));
-  } else if (std::strcmp(argv[1], "-s") == 0) {
-    print_status(fs::path{"."}, fs::path("deps"));
-  } else if (std::strcmp(argv[1], "-r") == 0) {
-    resolve_conflicts(fs::path{"."}, fs::path("deps"));
-  } else if (std::strcmp(argv[1], "-g") == 0) {
-    upgrade_deps(fs::path{"."}, fs::path("deps"));
-  } else if (std::strcmp(argv[1], "-c") == 0) {
-    boost::filesystem::remove_all(get_home_path() / ".pkg");
-    boost::filesystem::remove_all(fs::path("deps"));
+  }
+
+  try {
+    if (std::strcmp(argv[1], "-u") == 0) {
+      update_deps(fs::path{"."}, fs::path("deps"));
+    } else if (std::strcmp(argv[1], "-l") == 0) {
+      load_deps(fs::path{"."}, fs::path("deps"));
+    } else if (std::strcmp(argv[1], "-s") == 0) {
+      print_status(fs::path{"."}, fs::path("deps"));
+    } else if (std::strcmp(argv[1], "-r") == 0) {
+      resolve_conflicts(fs::path{"."}, fs::path("deps"));
+    } else if (std::strcmp(argv[1], "-g") == 0) {
+      upgrade_deps(fs::path{"."}, fs::path("deps"));
+    } else if (std::strcmp(argv[1], "-c") == 0) {
+      boost::filesystem::remove_all(get_home_path() / ".pkg");
+      boost::filesystem::remove_all(fs::path("deps"));
+    }
+  } catch (std::exception const& e) {
+    std::cout << "Error: " << e.what() << "\n";
   }
 }

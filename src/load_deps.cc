@@ -58,8 +58,8 @@ void load_deps(fs::path const& repo, fs::path const& deps_root) {
             git_clone(e, &d_copy);
           } catch (std::exception const& ex) {
             print([&] {
-              std::cout << "*** TRY FAILED:\nMAIN ERROR\n" << ex.what() << "\n";
-
+              fmt::print("Repo checkout failed for {}: {}\n", d_copy.name(),
+                         ex.what());
               if (!e.results_.empty()) {
                 std::cout << "*** TRACE:\n";
                 for (auto const& r : e.results_) {
@@ -67,22 +67,6 @@ void load_deps(fs::path const& repo, fs::path const& deps_root) {
                 }
               }
             });
-
-            try {
-              e.clear();
-              git_clone_clean(e, &d_copy);
-            } catch (std::exception const& ex1) {
-              print([&] {
-                std::cout << "*** RETRY FAILED:\nMAIN ERROR\n"
-                          << ex1.what() << "\n"
-                          << "*** TRACE:\n";
-                if (!e.results_.empty()) {
-                  for (auto const& r : e.results_) {
-                    std::cout << r << "\n";
-                  }
-                }
-              });
-            }
           }
           return main.post([cb_mv_1 = std::move(cb_mv), d] { cb_mv_1(d); });
         });

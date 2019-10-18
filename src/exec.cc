@@ -32,56 +32,47 @@ exec_result exec(boost::filesystem::path const& working_directory,
                  std::string const& cmd) {
   namespace bp = boost::process;
   std::stringstream out_ss, err_ss;
-  try {
-    bp::ipstream out, err;
-    bp::child c(cmd, bp::start_dir = working_directory, bp::std_out > out,
-                bp::std_err > err);
 
-    std::string line;
-    while (true) {
-      if (!out && !err) {
-        break;
-      }
+  bp::ipstream out, err;
+  bp::child c(cmd, bp::start_dir = working_directory, bp::std_out > out,
+              bp::std_err > err);
 
-      if (out) {
-        std::getline(out, line);
-        if (!line.empty()) {
-          out_ss << line << "\n";
-          continue;
-        }
-      }
+  std::string line;
+  while (true) {
+    if (!out && !err) {
+      break;
+    }
 
-      if (err) {
-        std::getline(err, line);
-        if (!line.empty()) {
-          err_ss << line << "\n";
-          continue;
-        }
+    if (out) {
+      std::getline(out, line);
+      if (!line.empty()) {
+        out_ss << line << "\n";
+        continue;
       }
     }
 
-    c.wait();
-
-    exec_result r;
-    r.command_ = cmd;
-    r.working_directory_ = working_directory;
-    r.out_ = out_ss.str();
-    r.err_ = err_ss.str();
-    r.exit_code_ = c.exit_code();
-
-    if (c.exit_code() != 0) {
-      throw exec_exception{std::move(r)};
-    } else {
-      return r;
+    if (err) {
+      std::getline(err, line);
+      if (!line.empty()) {
+        err_ss << line << "\n";
+        continue;
+      }
     }
-  } catch (std::exception const& e) {
-    exec_result r;
-    r.command_ = cmd;
-    r.working_directory_ = working_directory;
-    r.out_ = out_ss.str();
-    r.err_ = err_ss.str();
-    r.exit_code_ = -1;
+  }
+
+  c.wait();
+
+  exec_result r;
+  r.command_ = cmd;
+  r.working_directory_ = working_directory;
+  r.out_ = out_ss.str();
+  r.err_ = err_ss.str();
+  r.exit_code_ = c.exit_code();
+
+  if (c.exit_code() != 0) {
     throw exec_exception{std::move(r)};
+  } else {
+    return r;
   }
 }
 
