@@ -1,4 +1,8 @@
+CMakeSettings.json
 /*build*
 /.idea
 /.vscode
+/.vs
+/out
+*.swp
 /*.git
