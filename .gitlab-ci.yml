@@ -4,13 +4,13 @@ linux-release:
   script:
     - ccache -z
     - export PATH=/usr/lib/ccache:$PATH
-    - export CXX=g++-9
-    - export CC=gcc-9
+    - export CXX=g++-7
+    - export CC=gcc-7
     - export BOOST_ROOT=~/boost_1_71_0
     - git submodule update --init --recursive
     - mkdir -p build
     - cd build
-    - CXXFLAGS="-static" cmake -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel ..
+    - cmake -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel ..
     - ninja pkg pkg-test
     - ./pkg-test
     - ccache -s
