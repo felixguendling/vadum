@@ -10,7 +10,7 @@ linux-release:
     - git submodule update --init --recursive
     - mkdir -p build
     - cd build
-    - cmake -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel ..
+    - CXXFLAGS="-static" cmake -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel ..
     - ninja pkg pkg-test
     - ./pkg-test
     - ccache -s
