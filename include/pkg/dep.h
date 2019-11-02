@@ -29,8 +29,6 @@ struct dep {
 
   std::string name() const;
 
-  boost::filesystem::path bare_repo_path() const;
-
   std::set<dep*> recursive_preds() const;
 
   friend bool operator<(dep const& a, dep const& b) { return a.url_ < b.url_; }

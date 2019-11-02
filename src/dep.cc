@@ -62,8 +62,4 @@ boost::filesystem::path dep::pkg_file() const { return path_ / PKG_FILE; }
 
 std::string dep::name() const { return name_from_url(url_); }
 
-boost::filesystem::path dep::bare_repo_path() const {
-  return get_home_path() / ".pkg" / name();
-}
-
 }  // namespace pkg

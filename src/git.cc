@@ -37,12 +37,6 @@ void git_clone(executor& e, dep const* d) {
   e.exec(d->path_, "git submodule update --init --recursive");
 }
 
-void git_clone_clean(executor& e, dep const* d) {
-  boost::filesystem::remove_all(d->path_);
-  boost::filesystem::remove_all(d->bare_repo_path());
-  git_clone(e, d);
-}
-
 void git_attach(dep const* d) {
   auto e = executor{};
   git_attach(e, d);

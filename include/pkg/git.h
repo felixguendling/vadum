@@ -19,7 +19,6 @@ struct commit_info {
 };
 
 void git_clone(executor&, dep const*);
-void git_clone_clean(executor&, dep const*);
 
 void git_attach(executor&, dep const*);
 
