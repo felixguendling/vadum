@@ -12,6 +12,12 @@
 
 namespace pkg {
 
+std::string git_shorten(dep const* d, std::string const& commit) {
+  auto out = exec(d->path_, "git rev-parse --short {}", commit).out_;
+  utl::erase(out, '\n');
+  return out;
+}
+
 std::string get_commit(executor& e, boost::filesystem::path const& p,
                        std::string const& target) {
   auto out = exec(p, "git rev-parse {}", target).out_;
@@ -20,9 +26,13 @@ std::string get_commit(executor& e, boost::filesystem::path const& p,
 }
 
 void git_attach(executor& e, dep const* d) {
-  auto const branch_head_commit = get_commit(e, d->path_, d->branch_);
+  e.exec(d->path_, "git fetch origin '*:*'");
+  auto const branch_head_commit =
+      get_commit(e, d->path_, "origin/" + d->branch_);
   if (branch_head_commit == d->commit_) {
     e.exec(d->path_, "git checkout {}", d->branch_);
+  } else {
+    e.exec(d->path_, "git checkout {}", d->commit_);
   }
 }
 

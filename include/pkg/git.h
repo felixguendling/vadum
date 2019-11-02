@@ -18,6 +18,8 @@ struct commit_info {
   dep::branch_commit bc_;
 };
 
+std::string git_shorten(dep const*, std::string const& commit);
+
 void git_clone(executor&, dep const*);
 
 void git_attach(executor&, dep const*);

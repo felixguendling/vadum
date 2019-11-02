@@ -39,15 +39,27 @@ void load_deps(fs::path const& repo, fs::path const& deps_root) {
   main.post([&] {
     l.retrieve_async(repo, [&](dep* d, dependency_loader::iteration_fn_t cb) {
       if (fs::is_directory(d->path_)) {
-        fmt::print("already cloned: {}\n", d->name());
-
-        auto const commit = get_commit(d->path_);
-        if (d->commit_ != commit) {
-          fmt::print("[{}] warning:\n  required={}\n  current={}\n", d->name(),
-                     d->commit_, commit);
+        fmt::print("already cloned: {}", d->name());
+        if (auto const commit = get_commit(d->path_); d->commit_ != commit) {
+          fmt::print(" (updating current={} to required={})\n",
+                     git_shorten(d, d->commit_), git_shorten(d, commit));
+        } else {
+          fmt::print("\n");
         }
+        std::cout << std::flush;
+
         executor e;
-        git_attach(e, d);
+        try {
+          git_attach(e, d);
+        } catch (std::exception const& ex) {
+          fmt::print("Checkout failed for {}: {}\n", d->name(), ex.what());
+          if (!e.results_.empty()) {
+            std::cout << "*** TRACE:\n";
+            for (auto const& r : e.results_) {
+              std::cout << r << "\n";
+            }
+          }
+        }
         return cb(d);
       } else {
         fmt::print("cloning: {}\n", d->name());
