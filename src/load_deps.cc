@@ -47,6 +47,7 @@ void load_deps(fs::path const& repo, fs::path const& deps_root) {
                      d->commit_, commit);
         }
         executor e;
+        e.exec(d->bare_repo_path(), "git fetch origin '*:*'");
         git_attach(e, d);
         return cb(d);
       } else {
