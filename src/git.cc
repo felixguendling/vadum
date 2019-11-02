@@ -21,24 +21,20 @@ std::string get_commit(executor& e, boost::filesystem::path const& p,
 
 void git_attach(executor& e, dep const* d) {
   auto const branch_head_commit = get_commit(e, d->path_, d->branch_);
-  if (!d->branch_.empty() && branch_head_commit != d->commit_) {
-    e.exec(d->path_, "git checkout {}", d->commit_);
+  if (branch_head_commit == d->commit_) {
+    e.exec(d->path_, "git checkout {}", d->branch_);
   }
 }
 
 void git_clone(executor& e, dep const* d) {
-  auto const bare_repo_path = d->bare_repo_path();
-  if (boost::filesystem::is_directory(bare_repo_path)) {
-    e.exec(bare_repo_path, "git fetch origin '*:*'");
-  } else {
-    e.exec(d->path_.parent_path(), "git clone --bare {} {}", d->url_,
-           bare_repo_path.string());
+  if (!boost::filesystem::is_directory(d->path_.parent_path())) {
+    boost::filesystem::create_directories(d->path_.parent_path());
   }
-  e.exec(bare_repo_path, "git worktree prune");
-  e.exec(bare_repo_path, "git worktree add -f -f --checkout {} {}",
-         boost::filesystem::absolute(d->path_).string(), d->branch_);
+
+  e.exec(d->path_.parent_path(), "git clone {} {}", d->url_,
+         boost::filesystem::absolute(d->path_).string());
+  e.exec(d->path_, "git checkout {}", d->commit_);
   e.exec(d->path_, "git submodule update --init --recursive");
-  git_attach(e, d);
 }
 
 void git_clone_clean(executor& e, dep const* d) {
