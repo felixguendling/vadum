@@ -1,19 +1,16 @@
+image: git.motis-project.de:5001/motis/motis/build:latest
+
 linux-release:
   tags:
-    - disco
+    - docker
   script:
-    - ccache -z
-    - export PATH=/usr/lib/ccache:$PATH
-    - export CXX=g++-7
-    - export CC=gcc-7
-    - export BOOST_ROOT=~/boost_1_71_0
     - git submodule update --init --recursive
     - mkdir -p build
     - cd build
-    - cmake -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel ..
+    - cmake-sccache-gcc-7 -DCMAKE_BUILD_TYPE=MinSizeRel ..
     - ninja pkg pkg-test
     - ./pkg-test
-    - ccache -s
+    - sccache -s
   artifacts:
     paths:
       - build/pkg
