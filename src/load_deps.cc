@@ -42,7 +42,7 @@ void load_deps(fs::path const& repo, fs::path const& deps_root) {
         fmt::print("already cloned: {}", d->name());
         if (auto const commit = get_commit(d->path_); d->commit_ != commit) {
           fmt::print(" (updating current={} to required={})\n",
-                     git_shorten(d, d->commit_), git_shorten(d, commit));
+                     git_shorten(d, commit), git_shorten(d, d->commit_));
         } else {
           fmt::print("\n");
         }
