@@ -4,6 +4,7 @@
 
 #include "fmt/color.h"
 
+#include "pkg/color_output.h"
 #include "pkg/dependency_loader.h"
 #include "pkg/status.h"
 
@@ -12,6 +13,7 @@ namespace fs = boost::filesystem;
 namespace pkg {
 
 void print_status(std::vector<dep*> const& all) {
+  enable_color_output();
   auto const dep_status = get_status(all);
   std::function<void(dep*, int)> print_dep = [&](dep* d, int indent) {
     auto const name = d->name();
