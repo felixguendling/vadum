@@ -21,7 +21,8 @@ namespace fs = boost::filesystem;
 
 namespace pkg {
 
-void load_deps(fs::path const& repo, fs::path const& deps_root) {
+void load_deps(fs::path const& repo, fs::path const& deps_root,
+               bool const clone_https) {
   if (!boost::filesystem::is_directory(deps_root)) {
     boost::filesystem::create_directories(deps_root);
   }
@@ -64,10 +65,10 @@ void load_deps(fs::path const& repo, fs::path const& deps_root) {
       } else {
         fmt::print("cloning: {}\n", d->name());
         std::cout << std::flush;
-        ios.post([d_copy = *d, d, &main, cb_mv = std::move(cb), &print] {
+        ios.post([d_copy = *d, d, &main, cb_mv = std::move(cb), &print, &clone_https] {
           executor e;
           try {
-            git_clone(e, &d_copy);
+            git_clone(e, &d_copy, clone_https);
           } catch (std::exception const& ex) {
             print([&] {
               fmt::print("Repo checkout failed for {}: {}\n", d_copy.name(),

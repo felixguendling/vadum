@@ -6,11 +6,29 @@
 #include "boost/filesystem.hpp"
 
 #include "utl/erase.h"
+#include "utl/parser/cstr.h"
 #include "utl/to_vec.h"
 
 #include "pkg/exec.h"
 
 namespace pkg {
+
+std::string ssh_to_https(std::string url) {
+  if (!utl::cstr{url.c_str(), url.size()}.starts_with("git")) {
+    return url;
+  } else if (auto const colon_pos = url.find_last_of(':');
+             colon_pos == std::string::npos) {
+    return url;
+  } else {
+    // Replace ":" -> "/"
+    url[colon_pos] = '/';
+
+    // Replace git@ -> https://
+    url = "https://" + url.substr(4);
+
+    return url;
+  }
+}
 
 std::string git_shorten(dep const* d, std::string const& commit) {
   auto out = exec(d->path_, "git rev-parse --short {}", commit).out_;
@@ -37,12 +55,13 @@ void git_attach(executor& e, dep const* d) {
   }
 }
 
-void git_clone(executor& e, dep const* d) {
+void git_clone(executor& e, dep const* d, bool const to_https) {
   if (!boost::filesystem::is_directory(d->path_.parent_path())) {
     boost::filesystem::create_directories(d->path_.parent_path());
   }
 
-  e.exec(d->path_.parent_path(), "git clone {} {}", d->url_,
+  e.exec(d->path_.parent_path(), "git clone {} {}",
+         to_https ? ssh_to_https(d->url_) : d->url_,
          boost::filesystem::absolute(d->path_).string());
   e.exec(d->path_, "git checkout {}", d->commit_);
   e.exec(d->path_, "git submodule update --init --recursive");

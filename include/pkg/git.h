@@ -20,7 +20,7 @@ struct commit_info {
 
 std::string git_shorten(dep const*, std::string const& commit);
 
-void git_clone(executor&, dep const*);
+void git_clone(executor&, dep const*, bool clone_https);
 
 void git_attach(executor&, dep const*);
 

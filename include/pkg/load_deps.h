@@ -5,6 +5,6 @@
 namespace pkg {
 
 void load_deps(boost::filesystem::path const& repo,
-               boost::filesystem::path const& deps_root);
+               boost::filesystem::path const& deps_root, bool clone_https);
 
 }  // namespace pkg

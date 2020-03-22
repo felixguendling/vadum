@@ -17,15 +17,15 @@ namespace fs = boost::filesystem;
 using namespace pkg;
 
 int main(int argc, char** argv) {
-  if (argc != 2) {
+  if (argc < 2) {
     printf(
         "usage: %s\n"
-        "  -l    load    [clone dependencies]\n"
-        "  -u    update  [recursive on new commit]\n"
-        "  -s    status  [print status]\n"
-        "  -r    resolve [resolve conflicts]\n"
-        "  -g    upgrade [switch to branch head]\n"
-        "  -c    cleanup [remove ~/.pkg]\n",
+        "  -l [-h]   load    [clone dependencies; -h for https clone]\n"
+        "  -u        update  [recursive on new commit]\n"
+        "  -s        status  [print status]\n"
+        "  -r        resolve [resolve conflicts]\n"
+        "  -g        upgrade [switch to branch head]\n"
+        "  -c        cleanup [remove ~/.pkg]\n",
         argv[0]);
     return 0;
   }
@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
     if (std::strcmp(argv[1], "-u") == 0) {
       update_deps(fs::path{"."}, fs::path("deps"));
     } else if (std::strcmp(argv[1], "-l") == 0) {
-      load_deps(fs::path{"."}, fs::path("deps"));
+      load_deps(fs::path{"."}, fs::path("deps"), argc > 2 && std::strcmp(argv[2], "-h") == 0);
     } else if (std::strcmp(argv[1], "-s") == 0) {
       print_status(fs::path{"."}, fs::path("deps"));
     } else if (std::strcmp(argv[1], "-r") == 0) {
