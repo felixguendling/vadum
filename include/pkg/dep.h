@@ -13,6 +13,11 @@ namespace pkg {
 constexpr auto const ROOT = ".";
 constexpr auto const PKG_FILE = ".pkg";
 
+struct branch_commit {
+  MAKE_COMPARABLE()
+  std::string branch_, commit_;
+};
+
 struct dep {
   dep() = default;
 
@@ -41,11 +46,8 @@ struct dep {
   std::set<dep*> preds_;
   std::set<dep*> succs_;
 
-  struct branch_commit {
-    MAKE_COMPARABLE()
-    std::string branch_, commit_;
-  };
-  std::map<branch_commit, std::vector<dep*>> referenced_commits_;
+  std::map<branch_commit, std::set<dep*>> referenced_commits_;
+  std::map<dep*, branch_commit> pred_referenced_commits_;
 };
 
 }  // namespace pkg

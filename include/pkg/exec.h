@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ostream>
+#include <iostream>
 
 #include "boost/filesystem/path.hpp"
 
@@ -42,7 +42,19 @@ struct executor {
       throw;
     }
   }
+
+  void print_trace() {
+    if (!results_.empty()) {
+      std::cout << "*** TRACE:\n";
+      for (auto const& r : results_) {
+        std::cout << r << "\n";
+      }
+    }
+    std::cout << std::flush;
+  }
+
   void clear() { results_.clear(); }
+
   std::vector<exec_result> results_;
 };
 

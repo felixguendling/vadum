@@ -37,13 +37,17 @@ std::string git_shorten(dep const* d, std::string const& commit) {
 }
 
 std::string get_commit(executor& e, boost::filesystem::path const& p,
-                       std::string const& target) {
+                       std::string const& target = "HEAD") {
   auto out = exec(p, "git rev-parse {}", target).out_;
   utl::erase(out, '\n');
   return out;
 }
 
 void git_attach(executor& e, dep const* d) {
+  if (get_commit(e, d->path_) == d->commit_) {
+    return;
+  }
+
   e.exec(d->path_, "git fetch origin");
   auto const branch_head_commit =
       get_commit(e, d->path_, "origin/" + d->branch_);
@@ -88,15 +92,34 @@ std::string commit(boost::filesystem::path const& p, std::string const& msg) {
 void push(boost::filesystem::path const& p) { exec(p, "git push"); }
 
 std::vector<commit_info> get_commit_infos(
-    boost::filesystem::path const& p,
-    std::set<dep::branch_commit> const& commits) {
+    boost::filesystem::path const& p, std::set<branch_commit> const& commits) {
   auto infos = utl::to_vec(commits, [&](auto&& bc) -> commit_info {
-    auto info = exec(p, "git show -s --format=%ci {}", bc.commit_).out_;
+    auto info = exec(p, "git show -s --format=%at {}", bc.commit_).out_;
     info.resize(info.size() - 1);
     return {info, bc};
   });
-  std::sort(begin(infos), end(infos), std::greater<commit_info>());
+  std::sort(begin(infos), end(infos), std::greater<>());
   return infos;
+}
+
+bool commit_exists(dep const* d, std::string const& commit) {
+  auto info = exec(d->path_, "git cat-file -t {}", commit).out_;
+  info.resize(info.size() - 1);
+  return info == "commit";
+}
+
+std::string commit_date(dep const* d, std::string const& commit) {
+  auto info =
+      exec(d->path_, "git show -s --date=local --format=%cd {}", commit).out_;
+  info.resize(info.size() - 1);
+  return info;
+}
+
+std::time_t commit_time(dep const* d, std::string const& commit) {
+  auto info =
+      exec(d->path_, "git show -s --date=local --format=%at {}", commit).out_;
+  info.resize(info.size() - 1);
+  return std::stol(info);
 }
 
 bool is_fast_forward(boost::filesystem::path const& p,

@@ -27,70 +27,68 @@ void load_deps(fs::path const& repo, fs::path const& deps_root,
     boost::filesystem::create_directories(deps_root);
   }
 
-  boost::asio::io_service ios;
-  boost::asio::io_service::strand main{ios};
-
-  std::mutex print_mutex;
-  auto const print = [&](auto fn) {
-    std::lock_guard g{print_mutex};
-    fn();
-  };
-
   dependency_loader l{deps_root};
-  main.post([&] {
-    l.retrieve_async(repo, [&](dep* d, dependency_loader::iteration_fn_t cb) {
-      if (fs::is_directory(d->path_)) {
-        fmt::print("already cloned: {}", d->name());
-        if (auto const commit = get_commit(d->path_); d->commit_ != commit) {
-          fmt::print(" (updating current={} to required={})\n",
-                     git_shorten(d, commit), git_shorten(d, d->commit_));
-        } else {
-          fmt::print("\n");
-        }
+  l.retrieve(repo, [&](dep* d, branch_commit const& bc) {
+    if (fs::is_directory(d->path_)) {
+      auto const current_commit = get_commit(d->path_);
+      if (bc.commit_ == current_commit) {
+        return;
+      }
+
+      executor e;
+      try {
+        fmt::print("{} already cloned: current={}, previous={}, required={}",
+                   d->name(), git_shorten(d, current_commit),
+                   git_shorten(d, d->commit_), git_shorten(d, bc.commit_));
         std::cout << std::flush;
 
+        if (!commit_exists(d, d->commit_)) {
+          fmt::print(" ... fetch.");
+          std::cout << std::flush;
+          e.exec(d->path_, "git fetch origin");
+        }
+
+        if (commit_time(d, d->commit_) < commit_time(d, bc.commit_)) {
+          d->commit_ = bc.commit_;
+          d->branch_ = bc.branch_;
+        } else {
+          fmt::print(" ... required > previous.");
+          std::cout << std::flush;
+        }
+
+        if (current_commit != d->commit_) {
+          fmt::print(" ... checkout {}.", git_shorten(d, d->commit_));
+          std::cout << std::flush;
+          git_attach(e, d);
+        }
+
+        std::cout << std::endl;
+      } catch (std::exception const& ex) {
+        fmt::print("Checkout failed for {}: {}\n", d->name(), ex.what());
+        e.print_trace();
+      }
+    } else {
+      fmt::print("cloning: {}\n", d->name());
+      std::cout << std::flush;
+
+      std::function<void(int)> clone = [&](int i) {
         executor e;
         try {
-          git_attach(e, d);
+          git_clone(e, d, clone_https);
         } catch (std::exception const& ex) {
-          fmt::print("Checkout failed for {}: {}\n", d->name(), ex.what());
-          if (!e.results_.empty()) {
-            std::cout << "*** TRACE:\n";
-            for (auto const& r : e.results_) {
-              std::cout << r << "\n";
-            }
+          fmt::print("Repo checkout failed for {}: {}\n", d->name(), ex.what());
+          e.print_trace();
+
+          std::cout << "Retry clone\n";
+          if (i != 0) {
+            clone(i - 1);
           }
         }
-        return cb(d);
-      } else {
-        fmt::print("cloning: {}\n", d->name());
-        std::cout << std::flush;
-        ios.post([d_copy = *d, d, &main, cb_mv = std::move(cb), &print, &clone_https] {
-          executor e;
-          try {
-            git_clone(e, &d_copy, clone_https);
-          } catch (std::exception const& ex) {
-            print([&] {
-              fmt::print("Repo checkout failed for {}: {}\n", d_copy.name(),
-                         ex.what());
-              if (!e.results_.empty()) {
-                std::cout << "*** TRACE:\n";
-                for (auto const& r : e.results_) {
-                  std::cout << r << "\n";
-                }
-              }
-            });
-          }
-          return main.post([cb_mv_1 = std::move(cb_mv), d] { cb_mv_1(d); });
-        });
-      }
-    });
-  });
+      };
 
-  std::vector<std::thread> worker(5);
-  std::for_each(begin(worker), end(worker),
-                [&](auto& w) { w = std::thread{[&] { ios.run(); }}; });
-  std::for_each(begin(worker), end(worker), [&](auto& w) { w.join(); });
+      clone(2);
+    }
+  });
 
   std::ofstream of{"deps/CMakeLists.txt"};
   of << "project(" + deps_root.string() << ")\n"

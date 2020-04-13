@@ -12,7 +12,7 @@ namespace pkg {
 
 void upgrade_deps(fs::path const& repo, fs::path const& deps_root) {
   dependency_loader l{deps_root};
-  l.retrieve(repo, [&](dep* d) {
+  l.retrieve(repo, [&](dep* d, branch_commit const&) {
     if (d->branch_.empty()) {
       return;
     }
