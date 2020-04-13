@@ -103,9 +103,13 @@ std::vector<commit_info> get_commit_infos(
 }
 
 bool commit_exists(dep const* d, std::string const& commit) {
-  auto info = exec(d->path_, "git cat-file -t {}", commit).out_;
-  info.resize(info.size() - 1);
-  return info == "commit";
+  try {
+    auto info = exec(d->path_, "git cat-file -t {}", commit).out_;
+    info.resize(info.size() - 1);
+    return info == "commit";
+  } catch (...) {
+    return false;
+  }
 }
 
 std::string commit_date(dep const* d, std::string const& commit) {

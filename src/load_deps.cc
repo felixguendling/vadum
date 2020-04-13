@@ -42,7 +42,7 @@ void load_deps(fs::path const& repo, fs::path const& deps_root,
                    git_shorten(d, d->commit_), git_shorten(d, bc.commit_));
         std::cout << std::flush;
 
-        if (!commit_exists(d, d->commit_)) {
+        if (!commit_exists(d, d->commit_) || !commit_exists(d, bc.commit_)) {
           fmt::print(" ... fetch.");
           std::cout << std::flush;
           e.exec(d->path_, "git fetch origin");
