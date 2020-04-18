@@ -46,6 +46,8 @@ jobs:
       UBSAN_OPTIONS: halt_on_error=1:abort_on_error=1
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
 
       - name: ccache Cache
         uses: actions/cache@v1.1.2
