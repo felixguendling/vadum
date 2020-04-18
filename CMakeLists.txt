@@ -1,5 +1,5 @@
-project(pkg)
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
+project(pkg CXX)
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
