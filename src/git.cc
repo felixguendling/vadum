@@ -43,7 +43,7 @@ std::string get_commit(executor& e, boost::filesystem::path const& p,
   return out;
 }
 
-void git_attach(executor& e, dep const* d) {
+void git_attach(executor& e, dep const* d, bool const force) {
   if (get_commit(e, d->path_) == d->commit_) {
     return;
   }
@@ -52,10 +52,12 @@ void git_attach(executor& e, dep const* d) {
   auto const branch_head_commit =
       get_commit(e, d->path_, "origin/" + d->branch_);
   if (branch_head_commit == d->commit_) {
-    e.exec(d->path_, "git checkout {}", d->branch_);
+    force ? e.exec(d->path_, "git reset --hard {}", d->branch_)
+          : e.exec(d->path_, "git checkout {}", d->branch_);
     e.exec(d->path_, "git pull");
   } else {
-    e.exec(d->path_, "git checkout {}", d->commit_);
+    force ? e.exec(d->path_, "git reset --hard {}", d->branch_)
+          : e.exec(d->path_, "git checkout {}", d->branch_);
   }
 }
 
@@ -71,9 +73,9 @@ void git_clone(executor& e, dep const* d, bool const to_https) {
   e.exec(d->path_, "git submodule update --init --recursive");
 }
 
-void git_attach(dep const* d) {
+void git_attach(dep const* d, bool const force) {
   auto e = executor{};
-  git_attach(e, d);
+  git_attach(e, d, force);
 }
 
 std::string get_commit(boost::filesystem::path const& p,

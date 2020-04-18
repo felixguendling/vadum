@@ -22,7 +22,7 @@ std::string git_shorten(dep const*, std::string const& commit);
 
 void git_clone(executor&, dep const*, bool clone_https);
 
-void git_attach(executor&, dep const*);
+void git_attach(executor&, dep const*, bool force);
 
 std::string get_commit(boost::filesystem::path const& p,
                        std::string const& target = "HEAD");
