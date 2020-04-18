@@ -1,0 +1,57 @@
+name: Windows Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  release:
+    types:
+      - published
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        mode: [Debug, Release]
+
+    env:
+      CXX: cl
+      CC: cl
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Build
+        run: |
+          $devShell = &"${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -find **\Microsoft.VisualStudio.DevShell.dll
+          $installPath = &"${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationpath
+          Import-Module $devShell
+          Enter-VsDevShell -VsInstallPath $installPath -SkipAutomaticLocation -DevCmdArguments "-arch=amd64"
+          cmake -GNinja -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.mode }}
+          cmake --build build --target pkg pkg-test
+      - name: Run Tests
+        run: .\build\pkg-test
+      - name: Upload Distribution
+        if: matrix.mode == 'Release'
+        uses: actions/upload-artifact@v1
+        with:
+          name: pkg
+          path: pkg.exe
+
+      # ==== RELEASE ====
+      - name: Upload Release
+        if: github.event.action == 'published' && matrix.mode == 'Release'
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./build/pkg.exe
+          asset_name: pkg.exe
+          asset_content_type: application/octet-stream
