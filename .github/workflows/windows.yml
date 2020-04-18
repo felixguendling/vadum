@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: pkg
-          path: pkg.exe
+          path: ./build/pkg.exe
 
       # ==== RELEASE ====
       - name: Upload Release
