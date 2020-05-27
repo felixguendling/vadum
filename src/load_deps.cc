@@ -117,8 +117,8 @@ void load_deps(fs::path const& repo, fs::path const& deps_root,
   } while (repeat);
 
   std::ofstream of{"deps/CMakeLists.txt"};
-  of << "project(" + deps_root.string() << ")\n"
-     << "cmake_minimum_required(VERSION 3.10)\n\n";
+  of << "cmake_minimum_required(VERSION 3.10)\n"
+     << "project(" + deps_root.string() << ")\n\n";
   for (auto const& v : l.sorted()) {
     if (v->url_ == ROOT) {
       continue;
