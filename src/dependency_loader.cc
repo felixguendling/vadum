@@ -64,6 +64,8 @@ std::vector<dep*> dependency_loader::get_all() const {
 
 void dependency_loader::retrieve(
     fs::path const& p, dependency_loader::iteration_fn_t const& iterate) {
+  deps_.clear();
+  dep_mem_.clear();
   auto& d = dep_mem_.emplace_back(std::make_unique<dep>(dep::root(p)));
   retrieve(deps_[ROOT] = d.get(), iterate);
 }

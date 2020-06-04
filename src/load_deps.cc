@@ -75,43 +75,22 @@ void load_deps(fs::path const& repo, fs::path const& deps_root,
   };
 
   dependency_loader l{deps_root};
-
-  bool repeat = true;
+  auto repeat = false;
   do {
     repeat = false;
     l.retrieve(repo, iterator);
     for (auto const& d : l.get_all()) {
-      if (d->url_ == ROOT) {
+      if (d->url_ == ROOT || d->commit_ == get_commit(d->path_)) {
         continue;
       }
-      if (d->commit_ != get_commit(d->path_)) {
-        executor ex;
-        try {
-          git_attach(ex, d, force);
-          fmt::print("{}: checkout {}\n", d->name(),
-                     git_shorten(d, d->commit_));
-
-          if (utl::to_set(read_deps(deps_root, d), [&](dep const& new_d) {
-                if (auto const opt_resolved = l.resolve(new_d.url_);
-                    !opt_resolved.has_value()) {
-                  repeat = true;
-                  auto const dummy = std::string{"NEW"};
-                  return std::make_tuple(dummy, dummy, dummy);
-                } else {
-                  auto const resolved = *opt_resolved;
-                  return std::make_tuple(resolved->url_, resolved->branch_,
-                                         resolved->commit_);
-                }
-              }) != utl::to_set(d->succs_, [&](dep const* old_d) {
-                return std::make_tuple(old_d->url_, old_d->branch_,
-                                       old_d->commit_);
-              })) {
-            repeat = true;
-          }
-        } catch (std::exception const& e) {
-          fmt::print("Checkout failed for {}: {}\n", d->name(), e.what());
-          ex.print_trace();
-        }
+      executor ex;
+      try {
+        git_attach(ex, d, force);
+        fmt::print("{}: checkout {}\n", d->name(), git_shorten(d, d->commit_));
+        repeat = true;
+      } catch (std::exception const& e) {
+        fmt::print("Checkout failed for {}: {}\n", d->name(), e.what());
+        ex.print_trace();
       }
     }
   } while (repeat);
