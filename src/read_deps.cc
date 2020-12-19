@@ -16,7 +16,8 @@ namespace fs = boost::filesystem;
 
 namespace pkg {
 
-std::set<fs::path> collect_pkg_files(fs::path const& p) {
+std::set<fs::path> collect_pkg_files(fs::path const& p,
+                                     fs::path const& deps_root) {
   std::set<fs::path> q, pkg_files;
   q.emplace(p);
 
@@ -26,7 +27,8 @@ std::set<fs::path> collect_pkg_files(fs::path const& p) {
 
     if (curr.filename() == PKG_FILE) {
       pkg_files.emplace(curr);
-    } else if (fs::is_directory(curr) && curr.filename() != ".git") {
+    } else if (fs::is_directory(curr) && curr.filename() != ".git" &&
+               !fs::equivalent(curr, deps_root)) {
       for (auto const& dir_entry :
            utl::all(fs::directory_iterator{curr}, fs::directory_iterator{})) {
         q.emplace(dir_entry.path());
@@ -55,7 +57,8 @@ std::set<dep> read_deps(fs::path const& deps_root,
   });
 }
 
-std::optional<std::string> read_file(fs::path const& path,
+std::optional<std::string> read_file(fs::path const& deps_root,
+                                     fs::path const& path,
                                      bool const recursive) {
   auto const read_single_file = [](fs::path const& p) {
     std::ifstream f{p.string().c_str(), std::ios::binary | std::ios::ate};
@@ -70,9 +73,9 @@ std::optional<std::string> read_file(fs::path const& path,
     return f.read(&buffer[0], size) ? std::make_optional(buffer) : std::nullopt;
   };
 
-  auto const read_recursive = [read_single_file](fs::path const& p) {
+  auto const read_recursive = [&](fs::path const& p) {
     std::string buffer;
-    for (auto const& entry : collect_pkg_files(p)) {
+    for (auto const& entry : collect_pkg_files(p, deps_root)) {
       if (auto const content = read_single_file(entry); content.has_value()) {
         buffer += *content + "\n";
       }
@@ -88,7 +91,8 @@ std::set<dep> read_deps(fs::path const& deps_root, dep const* d,
   if (auto const p = d->path_ / PKG_FILE; !fs::is_regular_file(p)) {
     return {};
   } else {
-    auto const file_content = read_file(recursive ? d->path_ : p, recursive);
+    auto const file_content =
+        read_file(deps_root, recursive ? d->path_ : p, recursive);
     return file_content ? read_deps(deps_root, *file_content) : std::set<dep>{};
   }
 }

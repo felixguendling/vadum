@@ -104,5 +104,5 @@ TEST_CASE("load_deps_rec") {
                          "494d1527d81ba286f18f1d0e4a7fefb580e49af4", "pkg"}}};
 
   auto const root = dep::root(".");
-  CHECK(check_deps == read_deps(".", &root, true));
+  CHECK(check_deps == read_deps("deps", &root, true));
 }
