@@ -65,6 +65,11 @@ void git_attach(executor& e, dep const* d, bool const force) {
   auto const ref = is_branch_head ? d->branch_ : d->commit_;
   force ? e.exec(d->path_, "git reset --hard {}", ref)
         : e.exec(d->path_, "git checkout {}", ref);
+
+  if (boost::filesystem::exists(d->path_ / ".gitmodules")) {
+    e.exec(d->path_, "git submodule sync");
+    e.exec(d->path_, "git submodule update --init --recursive --remote");
+  }
 }
 
 void git_clone(executor& e, dep const* d, bool const to_https) {
