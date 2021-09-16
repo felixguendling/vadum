@@ -6,10 +6,9 @@
 #include <thread>
 #include <vector>
 
-#include "boost/asio/io_service.hpp"
-#include "boost/asio/strand.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/interprocess/sync/file_lock.hpp"
+#include "boost/interprocess/sync/scoped_lock.hpp"
 
 #include "fmt/format.h"
 
@@ -87,10 +86,10 @@ void load_deps(fs::path const& repo, fs::path const& deps_root,
     return h;
   }();
 
-  { auto const create_file_if_not_exists = utl::file{".pkg.lock", "a"}; }
-
-  auto lock = boost::interprocess::file_lock{".pkg.lock"};
-  auto const guard = std::lock_guard{lock};
+  auto const name = (fs::absolute(repo) / ".pkg.mutex");
+  { auto const create_if_not_exists = utl::file{name.c_str(), "w+"}; }
+  auto lock = boost::interprocess::file_lock{name.c_str()};
+  auto const guard = boost::interprocess::scoped_lock{lock};
 
   try {
     auto f = std::fstream{};
