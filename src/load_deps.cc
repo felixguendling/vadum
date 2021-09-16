@@ -77,7 +77,7 @@ void load_deps(fs::path const& repo, fs::path const& deps_root,
   };
 
   auto const hash = [&]() {
-    auto const pred = dep::root(deps_root);
+    auto const pred = dep::root(repo);
     auto h = cista::BASE_HASH;
     for (auto const& d : read_deps(deps_root, &pred, recursive)) {
       h = cista::hash_combine(h, cista::hash(d.name()), cista::hash(d.commit_));
