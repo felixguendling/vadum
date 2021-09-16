@@ -12,11 +12,6 @@ on:
 jobs:
   build:
     runs-on: macos-latest
-    env:
-      BUILDCACHE_COMPRESS: true
-      BUILDCACHE_ACCURACY: SLOPPY
-      BUILDCACHE_LUA_PATH: ${{ github.workspace }}/tools
-      BUILDCACHE_DIR: ${{ github.workspace }}/.buildcache
     steps:
       - uses: actions/checkout@v2
         with:
@@ -27,8 +22,6 @@ jobs:
         run: |
           cmake \
             -S . -B build \
-            -DCMAKE_C_COMPILER=clang \
-            -DCMAKE_CXX_COMPILER=clang++ \
             -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" \
             -DCMAKE_BUILD_TYPE=Release
 
@@ -39,9 +32,6 @@ jobs:
         run: ./build/pkg-test
 
       # ==== DISTRIBUTION ====
-      - name: Strip Executable
-        run: strip build/pkg
-
       - name: Upload Distribution
         uses: actions/upload-artifact@v2
         with:

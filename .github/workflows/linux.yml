@@ -46,8 +46,7 @@ jobs:
         with:
           submodules: true
 
-      - name: Install Ninja
-        if: matrix.config.os != 'macos-latest'
+      - name: Install Build Dependencies
         run: sudo apt-get install -y --no-install-recommends ninja-build qemu-user-static
 
       - name: Install Toolchain
