@@ -9,9 +9,11 @@
 #include "boost/asio/io_service.hpp"
 #include "boost/asio/strand.hpp"
 #include "boost/filesystem.hpp"
+#include "boost/interprocess/sync/file_lock.hpp"
 
 #include "fmt/format.h"
 
+#include "utl/parser/file.h"
 #include "utl/to_set.h"
 
 #include "cista/hashing.h"
@@ -85,35 +87,37 @@ void load_deps(fs::path const& repo, fs::path const& deps_root,
     return h;
   }();
 
-  if (fs::is_regular_file(repo / ".pkg.lock")) {
-    try {
-      auto f = std::ifstream{};
-      f.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-      f.open((repo / ".pkg.lock").generic_string().c_str());
+  { auto const create_file_if_not_exists = utl::file{".pkg.lock", "a"}; }
 
-      auto lock_hash = cista::hash_t{};
-      f >> lock_hash;
+  auto lock = boost::interprocess::file_lock{".pkg.lock"};
+  auto const guard = std::lock_guard{lock};
 
-      auto const check_lock_file = [&]() {
-        auto dep = std::string{};
-        auto commit = std::string{};
-        while (!f.eof() && f.peek() != EOF && f >> dep >> commit) {
-          std::string line;
-          std::getline(f, line);
-          if (get_commit(deps_root / dep) != commit) {
-            return false;
-          }
+  try {
+    auto f = std::fstream{};
+    f.exceptions(std::ios_base::failbit | std::ios_base::badbit);
+    f.open((repo / ".pkg.lock").generic_string().c_str(),
+           std::ios_base::in | std::ios_base::out);
+
+    auto lock_hash = cista::hash_t{};
+    f >> lock_hash;
+
+    auto const check_lock_file = [&]() {
+      auto dep = std::string{};
+      auto commit = std::string{};
+      while (!f.eof() && f.peek() != EOF && f >> dep >> commit) {
+        std::string line;
+        std::getline(f, line);
+        if (get_commit(deps_root / dep) != commit) {
+          return false;
         }
-        return true;
-      };
-
-      if (lock_hash == hash && check_lock_file()) {
-        return;
       }
-    } catch (std::exception const& e) {
-      std::cout << "could not read .pkg.lock file: " << e.what()
-                << "\ndoing full check\n";
+      return true;
+    };
+
+    if (lock_hash == hash && check_lock_file()) {
+      return;
     }
+  } catch (std::exception const& e) {
   }
 
   dependency_loader l{deps_root};
