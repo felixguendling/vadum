@@ -86,9 +86,14 @@ void load_deps(fs::path const& repo, fs::path const& deps_root,
     return h;
   }();
 
-  auto const name = (fs::absolute(repo) / ".pkg.mutex");
+  auto const name = (fs::absolute(repo) / ".pkg.mutex").generic_string();
   { auto const create_if_not_exists = utl::file{name.c_str(), "w+"}; }
   auto lock = boost::interprocess::file_lock{name.c_str()};
+  if (!lock.try_lock()) {
+    std::cout << "waiting for lock" << std::endl;
+  } else {
+    lock.unlock();
+  }
   auto const guard = boost::interprocess::scoped_lock{lock};
 
   try {
