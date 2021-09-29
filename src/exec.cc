@@ -1,4 +1,4 @@
-#include "pkg/exec.h"
+#include "vadum/exec.h"
 
 #include <sstream>
 
@@ -6,7 +6,7 @@
 #include "boost/process/io.hpp"
 #include "boost/process/start_dir.hpp"
 
-namespace pkg {
+namespace vadum {
 
 bool verbose = false;
 
@@ -105,4 +105,4 @@ exec_result exec(boost::filesystem::path const& working_directory,
   }
 }
 
-}  // namespace pkg
+}  // namespace vadum

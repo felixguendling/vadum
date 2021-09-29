@@ -6,7 +6,7 @@
 
 #include "fmt/format.h"
 
-namespace pkg {
+namespace vadum {
 
 void set_verbose(bool);
 
@@ -37,8 +37,8 @@ struct executor {
   exec_result exec(boost::filesystem::path const& working_directory,
                    char const* command, Args... args) {
     try {
-      return results_.emplace_back(
-          ::pkg::exec(working_directory, command, std::forward<Args>(args)...));
+      return results_.emplace_back(::vadum::exec(working_directory, command,
+                                                 std::forward<Args>(args)...));
     } catch (exec_result const& e) {
       results_.emplace_back(e);
       throw;
@@ -60,4 +60,4 @@ struct executor {
   std::vector<exec_result> results_;
 };
 
-}  // namespace pkg
+}  // namespace vadum

@@ -1,4 +1,4 @@
-#include "pkg/dependency_loader.h"
+#include "vadum/dependency_loader.h"
 
 #include <set>
 
@@ -6,12 +6,12 @@
 #include "utl/to_vec.h"
 #include "utl/verify.h"
 
-#include "pkg/git.h"
-#include "pkg/read_deps.h"
+#include "vadum/git.h"
+#include "vadum/read_deps.h"
 
 namespace fs = boost::filesystem;
 
-namespace pkg {
+namespace vadum {
 
 dependency_loader::dependency_loader(fs::path deps_root)
     : deps_root_{std::move(deps_root)} {}
@@ -82,4 +82,4 @@ void dependency_loader::retrieve(
   }
 }
 
-}  // namespace pkg
+}  // namespace vadum

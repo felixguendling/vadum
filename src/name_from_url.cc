@@ -1,10 +1,10 @@
-#include "pkg/name_from_url.h"
+#include "vadum/name_from_url.h"
 
 #include "utl/verify.h"
 
-#include "pkg/dep.h"
+#include "vadum/dep.h"
 
-namespace pkg {
+namespace vadum {
 
 std::string name_from_url(std::string const& url) {
   if (url == ROOT) {
@@ -19,4 +19,4 @@ std::string name_from_url(std::string const& url) {
   return url.substr(slash_pos + 1, dot_pos - slash_pos - 1);
 }
 
-}  // namespace pkg
+}  // namespace vadum

@@ -5,9 +5,9 @@
 
 #include "boost/filesystem/path.hpp"
 
-#include "pkg/dep.h"
+#include "vadum/dep.h"
 
-namespace pkg {
+namespace vadum {
 
 struct status {
   bool unchanged() const {
@@ -20,4 +20,4 @@ struct status {
 
 std::map<dep*, status> get_status(std::vector<dep*> const&);
 
-}  // namespace pkg
+}  // namespace vadum

@@ -34,15 +34,15 @@ jobs:
           Import-Module $devShell
           Enter-VsDevShell -VsInstallPath $installPath -SkipAutomaticLocation -DevCmdArguments "-arch=amd64"
           cmake -GNinja -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.mode }}
-          cmake --build build --target pkg pkg-test
+          cmake --build build --target vadum vadum-test
       - name: Run Tests
-        run: .\build\pkg-test
+        run: .\build\vadum-test
       - name: Upload Distribution
         if: matrix.mode == 'Release'
         uses: actions/upload-artifact@v1
         with:
-          name: pkg
-          path: ./build/pkg.exe
+          name: vadum
+          path: ./build/vadum.exe
 
       # ==== RELEASE ====
       - name: Upload Release
@@ -52,6 +52,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./build/pkg.exe
-          asset_name: pkg.exe
+          asset_path: ./build/vadum.exe
+          asset_name: vadum.exe
           asset_content_type: application/octet-stream

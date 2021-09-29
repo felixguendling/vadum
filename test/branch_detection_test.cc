@@ -1,8 +1,8 @@
 #include "doctest.h"
 
-#include "pkg/detect_branch.h"
+#include "vadum/detect_branch.h"
 
-using pkg::detect_branch;
+using vadum::detect_branch;
 
 TEST_CASE("detached single branch") {
   std::string o1 = R"(

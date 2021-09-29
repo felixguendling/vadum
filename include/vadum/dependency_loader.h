@@ -11,9 +11,9 @@
 
 #include "boost/filesystem/path.hpp"
 
-#include "pkg/dep.h"
+#include "vadum/dep.h"
 
-namespace pkg {
+namespace vadum {
 
 struct dependency_loader {
 public:
@@ -41,4 +41,4 @@ private:
   std::vector<std::unique_ptr<dep>> dep_mem_;
 };
 
-}  // namespace pkg
+}  // namespace vadum

@@ -1,12 +1,12 @@
 #include <cstdio>
 #include <algorithm>
 
-#include "pkg/exec.h"
-#include "pkg/load_deps.h"
-#include "pkg/print_status.h"
+#include "vadum/exec.h"
+#include "vadum/load_deps.h"
+#include "vadum/print_status.h"
 
 namespace fs = boost::filesystem;
-using namespace pkg;
+using namespace vadum;
 
 extern bool verbose;
 
@@ -19,11 +19,11 @@ int main(int argc, char** argv) {
   if (argc < 2) {
     printf(
         "Usage:\n"
-        "  pkg load | -l      [clone dependencies]\n"
+        "  vadum load | -l      [clone dependencies]\n"
         "      -h for https        (default: ssh);\n"
         "      -f for hard reset   (default: checkout)]\n"
         "      -r for recursive    (default: false)]\n"
-        "  pkg status | -s    [print status]\n"
+        "  vadum status | -s    [print status]\n"
         "\n"
         "Common flags - apply everywhere:\n"
         "  -v        verbose [print what's going on]\n");

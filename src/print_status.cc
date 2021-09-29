@@ -1,17 +1,17 @@
-#include "pkg/print_status.h"
+#include "vadum/print_status.h"
 
 #include <functional>
 
 #include "fmt/color.h"
 
-#include "pkg/color_output.h"
-#include "pkg/dependency_loader.h"
-#include "pkg/git.h"
-#include "pkg/status.h"
+#include "vadum/color_output.h"
+#include "vadum/dependency_loader.h"
+#include "vadum/git.h"
+#include "vadum/status.h"
 
 namespace fs = boost::filesystem;
 
-namespace pkg {
+namespace vadum {
 
 void print_status(std::vector<dep*> const& all) {
   enable_color_output();
@@ -83,4 +83,4 @@ void print_status(fs::path const& repo, fs::path const& deps_root) {
   }
 }
 
-}  // namespace pkg
+}  // namespace vadum

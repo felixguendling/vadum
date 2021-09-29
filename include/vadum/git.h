@@ -7,10 +7,10 @@
 
 #include "boost/filesystem/path.hpp"
 
-#include "pkg/dep.h"
-#include "pkg/exec.h"
+#include "vadum/dep.h"
+#include "vadum/exec.h"
 
-namespace pkg {
+namespace vadum {
 
 struct commit_info {
   MAKE_COMPARABLE()
@@ -43,4 +43,4 @@ std::time_t commit_time(dep const*, std::string const& commit);
 bool is_fast_forward(boost::filesystem::path const& p,
                      std::string const& commit1, std::string const& commit2);
 
-}  // namespace pkg
+}  // namespace vadum

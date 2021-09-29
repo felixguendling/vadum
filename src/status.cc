@@ -1,14 +1,14 @@
-#include "pkg/status.h"
+#include "vadum/status.h"
 
 #include <sstream>
 #include <string>
 
-#include "pkg/exec.h"
-#include "pkg/git.h"
+#include "vadum/exec.h"
+#include "vadum/git.h"
 
 namespace fs = boost::filesystem;
 
-namespace pkg {
+namespace vadum {
 
 struct git_status {
   explicit git_status(dep const* d) {
@@ -45,4 +45,4 @@ std::map<dep*, status> get_status(std::vector<dep*> const& deps) {
   return dep_status;
 }
 
-}  // namespace pkg
+}  // namespace vadum

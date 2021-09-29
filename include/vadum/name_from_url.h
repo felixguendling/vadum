@@ -2,8 +2,8 @@
 
 #include <string>
 
-namespace pkg {
+namespace vadum {
 
 std::string name_from_url(std::string const& url);
 
-}  // namespace pkg
+}  // namespace vadum

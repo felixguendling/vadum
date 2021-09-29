@@ -64,23 +64,17 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
-        run: cmake --build build --target pkg pkg-test
+        run: cmake --build build --target vadum vadum-test
 
       - name: Run Tests
-        run: ${{ matrix.config.emulator }} ./build/pkg-test
+        run: ${{ matrix.config.emulator }} ./build/vadum-test
 
       # ==== DISTRIBUTION ====
       - name: Upload Distribution
         uses: actions/upload-artifact@v2
         with:
-          name: pkg-linux-${{ matrix.config.target }}
-          path: ./build/pkg
-
-      - name: Upload Distribution (Legacy Naming)
-        uses: actions/upload-artifact@v2
-        with:
-          name: pkg
-          path: ./build/pkg
+          name: vadum-linux-${{ matrix.config.target }}
+          path: ./build/vadum
 
       # ==== RELEASE ====
       - name: Upload Release
@@ -90,17 +84,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./build/pkg
-          asset_name: pkg-linux-${{ matrix.config.target }}
-          asset_content_type: application/x-tar
-
-      - name: Upload Release (Legacy Naming)
-        if: github.event.action == 'published' && matrix.config.target == 'amd64'
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./build/pkg
-          asset_name: pkg
+          asset_path: ./build/vadum
+          asset_name: vadum-linux-${{ matrix.config.target }}
           asset_content_type: application/x-tar

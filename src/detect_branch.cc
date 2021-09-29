@@ -1,17 +1,17 @@
-#include "pkg/detect_branch.h"
+#include "vadum/detect_branch.h"
 
 #include <sstream>
 
 #include "fmt/format.h"
 #include "fmt/ranges.h"
 
-#include "pkg/dependency_loader.h"
-#include "pkg/exec.h"
-#include "pkg/git.h"
+#include "vadum/dependency_loader.h"
+#include "vadum/exec.h"
+#include "vadum/git.h"
 
 namespace fs = boost::filesystem;
 
-namespace pkg {
+namespace vadum {
 
 std::vector<std::string> detect_branch(fs::path const& p) {
   return detect_branch(
@@ -59,4 +59,4 @@ bool detect_branch(dep* d) {
   }
 }
 
-}  // namespace pkg
+}  // namespace vadum

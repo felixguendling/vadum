@@ -1,4 +1,4 @@
-#include "pkg/load_deps.h"
+#include "vadum/load_deps.h"
 
 #include <fstream>
 #include <iostream>
@@ -17,14 +17,14 @@
 
 #include "cista/hashing.h"
 
-#include "pkg/dependency_loader.h"
-#include "pkg/exec.h"
-#include "pkg/git.h"
-#include "pkg/read_deps.h"
+#include "vadum/dependency_loader.h"
+#include "vadum/exec.h"
+#include "vadum/git.h"
+#include "vadum/read_deps.h"
 
 namespace fs = boost::filesystem;
 
-namespace pkg {
+namespace vadum {
 
 void load_deps(fs::path const& repo, fs::path const& deps_root,
                bool const clone_https, bool const force, bool const recursive) {
@@ -86,7 +86,7 @@ void load_deps(fs::path const& repo, fs::path const& deps_root,
     return h;
   }();
 
-  auto const name = (fs::absolute(repo) / ".pkg.mutex").generic_string();
+  auto const name = (fs::absolute(repo) / ".vadum.mutex").generic_string();
   { auto const create_file_if_not_exists = std::ofstream{name}; }
   auto lock = boost::interprocess::file_lock{name.c_str()};
   if (!lock.try_lock()) {
@@ -99,7 +99,7 @@ void load_deps(fs::path const& repo, fs::path const& deps_root,
   try {
     auto f = std::fstream{};
     f.exceptions(std::ios_base::failbit | std::ios_base::badbit);
-    f.open((repo / ".pkg.lock").generic_string().c_str(),
+    f.open((repo / ".vadum.lock").generic_string().c_str(),
            std::ios_base::in | std::ios_base::out);
 
     auto lock_hash = cista::hash_t{};
@@ -158,7 +158,7 @@ void load_deps(fs::path const& repo, fs::path const& deps_root,
   }
 
   {
-    std::ofstream of{(repo / ".pkg.lock").generic_string().c_str()};
+    std::ofstream of{(repo / ".vadum.lock").generic_string().c_str()};
     of << hash << "\n";
     for (auto const& v : l.sorted()) {
       if (v->url_ == ROOT) {
@@ -169,4 +169,4 @@ void load_deps(fs::path const& repo, fs::path const& deps_root,
   }
 }
 
-}  // namespace pkg
+}  // namespace vadum

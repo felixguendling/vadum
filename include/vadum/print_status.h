@@ -2,9 +2,9 @@
 
 #include "boost/filesystem/path.hpp"
 
-namespace pkg {
+namespace vadum {
 
 void print_status(boost::filesystem::path const& repo,
                   boost::filesystem::path const& deps_root);
 
-}  // namespace pkg
+}  // namespace vadum

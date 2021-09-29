@@ -2,23 +2,23 @@
 
 #include <iostream>
 
-#include "pkg/read_deps.h"
+#include "vadum/read_deps.h"
 
 #include "test_dir.h"
 
 namespace fs = boost::filesystem;
-using pkg::dep;
-using pkg::read_deps;
-using pkg::ROOT;
+using vadum::dep;
+using vadum::read_deps;
+using vadum::ROOT;
 
-auto const pkg_file_2 = std::string{R"(
+auto const vadum_file_2 = std::string{R"(
 [pugixml]
   url=git@git.net/pugi.git
   branch=master
   commit=8153c7e9a52b9a64397737625d845fa7aec9e117
 [net]
   url=git@git.net/net.git
-  branch=pkg
+  branch=vadum
   commit=494d1527d81ba286f18f1d0e4a7fefb580e49af4
 [lmdb]
   url=git@git.net/lmdb.git
@@ -54,7 +54,7 @@ auto const pkg_file_2 = std::string{R"(
   commit=36abee117eb8a4fbda51a2000ccded3f7fd24ebe
 [osrm-backend]
   url=git@git.net/osrm.git
-  branch=pkg
+  branch=vadum
   commit=bf0acdf920eb06419c233b51e4f333eaf3f0f127
 [tar]
   url=git@git.net/tar.git
@@ -67,7 +67,7 @@ TEST_CASE("load_deps") {
       dep{"./deps", "git@git.net/pugi.git",
           "8153c7e9a52b9a64397737625d845fa7aec9e117", "master"},
       dep{"./deps", "git@git.net/net.git",
-          "494d1527d81ba286f18f1d0e4a7fefb580e49af4", "pkg"},
+          "494d1527d81ba286f18f1d0e4a7fefb580e49af4", "vadum"},
       dep{"./deps", "git@git.net/lmdb.git",
           "df5c07807e2a40f6e451497d15095ee405ad3693", "master"},
       dep{"./deps", "git@git.net/fbs.git",
@@ -85,12 +85,12 @@ TEST_CASE("load_deps") {
       dep{"./deps", "git@git.net/utl.git",
           "36abee117eb8a4fbda51a2000ccded3f7fd24ebe", "master"},
       dep{"./deps", "git@git.net/osrm.git",
-          "bf0acdf920eb06419c233b51e4f333eaf3f0f127", "pkg"},
+          "bf0acdf920eb06419c233b51e4f333eaf3f0f127", "vadum"},
       dep{"./deps", "git@git.net/tar.git",
           "7f2916f556a9972059611a0d471aaa465300c20c", "master"},
   }};
 
-  CHECK(check_deps == read_deps("./deps", pkg_file_2));
+  CHECK(check_deps == read_deps("./deps", vadum_file_2));
 }
 
 TEST_CASE("load_deps_rec") {
@@ -101,7 +101,7 @@ TEST_CASE("load_deps_rec") {
       std::set<dep>{{dep{"./deps", "git@git.net/pugi.git",
                          "8153c7e9a52b9a64397737625d845fa7aec9e117", "master"},
                      dep{"./deps", "git@git.net/net.git",
-                         "494d1527d81ba286f18f1d0e4a7fefb580e49af4", "pkg"}}};
+                         "494d1527d81ba286f18f1d0e4a7fefb580e49af4", "vadum"}}};
 
   auto const root = dep::root(".");
   CHECK(check_deps == read_deps("deps", &root, true));

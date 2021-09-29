@@ -1,4 +1,4 @@
-#include "pkg/read_deps.h"
+#include "vadum/read_deps.h"
 
 #include <cctype>
 #include <fstream>
@@ -14,19 +14,19 @@
 
 namespace fs = boost::filesystem;
 
-namespace pkg {
+namespace vadum {
 
-std::set<fs::path> collect_pkg_files(fs::path const& p,
-                                     fs::path const& deps_root) {
-  std::set<fs::path> q, pkg_files;
+std::set<fs::path> collect_vadum_files(fs::path const& p,
+                                       fs::path const& deps_root) {
+  std::set<fs::path> q, vadum_files;
   q.emplace(p);
 
   while (!q.empty()) {
     auto const curr = *q.begin();
     q.erase(q.begin());
 
-    if (curr.filename() == PKG_FILE) {
-      pkg_files.emplace(curr);
+    if (curr.filename() == vadum_FILE) {
+      vadum_files.emplace(curr);
     } else if (fs::is_directory(curr) && curr.filename() != ".git" &&
                !fs::equivalent(curr, deps_root)) {
       for (auto const& dir_entry :
@@ -36,7 +36,7 @@ std::set<fs::path> collect_pkg_files(fs::path const& p,
     }
   }
 
-  return pkg_files;
+  return vadum_files;
 }
 
 std::set<dep> read_deps(fs::path const& deps_root,
@@ -75,7 +75,7 @@ std::optional<std::string> read_file(fs::path const& deps_root,
 
   auto const read_recursive = [&](fs::path const& p) {
     std::string buffer;
-    for (auto const& entry : collect_pkg_files(p, deps_root)) {
+    for (auto const& entry : collect_vadum_files(p, deps_root)) {
       if (auto const content = read_single_file(entry); content.has_value()) {
         buffer += *content + "\n";
       }
@@ -88,7 +88,7 @@ std::optional<std::string> read_file(fs::path const& deps_root,
 
 std::set<dep> read_deps(fs::path const& deps_root, dep const* d,
                         bool const recursive) {
-  if (auto const p = d->path_ / PKG_FILE; !fs::is_regular_file(p)) {
+  if (auto const p = d->path_ / vadum_FILE; !fs::is_regular_file(p)) {
     return {};
   } else {
     auto const file_content =
@@ -97,4 +97,4 @@ std::set<dep> read_deps(fs::path const& deps_root, dep const* d,
   }
 }
 
-}  // namespace pkg
+}  // namespace vadum

@@ -1,4 +1,4 @@
-#include "pkg/git.h"
+#include "vadum/git.h"
 
 #include <algorithm>
 #include <iostream>
@@ -9,9 +9,9 @@
 #include "utl/parser/cstr.h"
 #include "utl/to_vec.h"
 
-#include "pkg/exec.h"
+#include "vadum/exec.h"
 
-namespace pkg {
+namespace vadum {
 
 std::string ssh_to_https(std::string url) {
   if (!utl::cstr{url.c_str(), url.size()}.starts_with("git")) {
@@ -96,8 +96,8 @@ std::string get_commit(boost::filesystem::path const& p,
 }
 
 std::string commit(boost::filesystem::path const& p, std::string const& msg) {
-  constexpr auto const PKG_FILE = ".pkg";
-  exec(p, "git add {}", PKG_FILE);
+  constexpr auto const vadum_FILE = ".vadum";
+  exec(p, "git add {}", vadum_FILE);
   exec(p, "git commit -m \"{}\"", msg);
   return get_commit(p);
 }
@@ -145,4 +145,4 @@ bool is_fast_forward(boost::filesystem::path const& p,
              .exit_code_ == 0;
 }
 
-}  // namespace pkg
+}  // namespace vadum

@@ -1,8 +1,9 @@
-pkg is a simple, minimal dependency manager based on Git.
+vadum is a simple, minimal dependency manager based on Git.
 
-It clones your cycle-free dependency tree recursively and creates a `CMakeLists.txt` file with all dependencies in topological order.
+It clones your cycle-free dependency tree recursively and creates a `CMakeLists.txt` file with all dependencies in
+topological order.
 
-Example `.pkg` file:
+Example `.vadum` file:
 
     [fmt]
       url=git@github.com:motis-project/fmt.git

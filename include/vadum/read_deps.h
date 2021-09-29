@@ -3,13 +3,13 @@
 
 #include "boost/filesystem.hpp"
 
-#include "pkg/dep.h"
+#include "vadum/dep.h"
 
-namespace pkg {
+namespace vadum {
 
 std::set<dep> read_deps(boost::filesystem::path const& deps_root, dep const* d,
                         bool recursive = false);
 std::set<dep> read_deps(boost::filesystem::path const& deps_root,
                         std::string const& file_content);
 
-}  // namespace pkg
+}  // namespace vadum

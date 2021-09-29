@@ -5,7 +5,7 @@
 
 #include "boost/filesystem/path.hpp"
 
-namespace pkg {
+namespace vadum {
 
 struct dep;
 
@@ -16,4 +16,4 @@ std::vector<std::string> detect_branch(
 
 bool detect_branch(dep*);
 
-}  // namespace pkg
+}  // namespace vadum

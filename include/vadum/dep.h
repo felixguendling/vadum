@@ -8,10 +8,10 @@
 
 #include "boost/filesystem/path.hpp"
 
-namespace pkg {
+namespace vadum {
 
 constexpr auto const ROOT = ".";
-constexpr auto const PKG_FILE = ".pkg";
+constexpr auto const vadum_FILE = ".vadum";
 
 struct branch_commit {
   MAKE_COMPARABLE()
@@ -26,11 +26,11 @@ struct dep {
 
   static dep root(boost::filesystem::path const& root_repo);
 
-  void write_pkg_file() const;
+  void write_vadum_file() const;
 
   bool is_root() const;
 
-  boost::filesystem::path pkg_file() const;
+  boost::filesystem::path vadum_file() const;
 
   std::string name() const;
 
@@ -50,4 +50,4 @@ struct dep {
   std::map<dep*, branch_commit> pred_referenced_commits_;
 };
 
-}  // namespace pkg
+}  // namespace vadum

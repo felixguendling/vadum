@@ -1,13 +1,13 @@
-#include "pkg/dep.h"
+#include "vadum/dep.h"
 
 #include <fstream>
 #include <ostream>
 
-#include "pkg/detect_branch.h"
-#include "pkg/git.h"
-#include "pkg/name_from_url.h"
+#include "vadum/detect_branch.h"
+#include "vadum/git.h"
+#include "vadum/name_from_url.h"
 
-namespace pkg {
+namespace vadum {
 
 dep::dep(boost::filesystem::path const& deps_root, std::string url,
          std::string commit, std::string branch)
@@ -16,12 +16,12 @@ dep::dep(boost::filesystem::path const& deps_root, std::string url,
       commit_{std::move(commit)},
       branch_{std::move(branch)} {}
 
-void dep::write_pkg_file() const {
+void dep::write_vadum_file() const {
   std::vector<dep*> succs{begin(succs_), end(succs_)};
   std::sort(begin(succs), end(succs),
             [](auto const* a, auto const* b) { return a->name() < b->name(); });
 
-  std::ofstream f{pkg_file().string().c_str()};
+  std::ofstream f{vadum_file().string().c_str()};
   for (auto const s : succs) {
     detect_branch(s);
     f << "[" << s->name() << "]\n"  //
@@ -56,8 +56,8 @@ std::set<dep*> dep::recursive_preds() const {
 
 bool dep::is_root() const { return url_ == ROOT; }
 
-boost::filesystem::path dep::pkg_file() const { return path_ / PKG_FILE; }
+boost::filesystem::path dep::vadum_file() const { return path_ / vadum_FILE; }
 
 std::string dep::name() const { return name_from_url(url_); }
 
-}  // namespace pkg
+}  // namespace vadum
