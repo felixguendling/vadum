@@ -34,16 +34,8 @@ void print_status(std::vector<dep*> const& all) {
     }
 
     if (d->referenced_commits_.size() > 1) {
-      auto const& c = d->pred_referenced_commits_.at(pred);
-      fmt::print(" commit={}", git_shorten(d, c.commit_));
-
-      // Print branch only if not all predecessors reference the same branch.
-      auto const branch = begin(d->referenced_commits_)->first.branch_;
-      if (!std::all_of(
-              begin(d->referenced_commits_), end(d->referenced_commits_),
-              [&](auto&& ref) { return ref.first.branch_ == branch; })) {
-        fmt::print(" branch={}", c.branch_);
-      }
+      fmt::print(" commit={}",
+                 git_shorten(d, d->pred_referenced_commits_.at(pred)));
     }
 
     fmt::print("\n");
@@ -71,9 +63,8 @@ void print_status(fs::path const& repo, fs::path const& deps_root) {
       fmt::print("  {} has {} commits\n", d->name(),
                  d->referenced_commits_.size());
       for (auto const& [commit, preds] : d->referenced_commits_) {
-        fmt::print("    branch={}, commit={} ({}), referenced by ",
-                   commit.branch_, git_shorten(d, commit.commit_),
-                   commit_date(d, commit.commit_));
+        fmt::print("    commit={} ({}), referenced by ", git_shorten(d, commit),
+                   commit_date(d, commit));
         for (auto const& p : preds) {
           fmt::print("{} ", p->name());
         }

@@ -17,7 +17,8 @@ namespace vadum {
 
 struct dependency_loader {
 public:
-  using iteration_fn_t = std::function<void(dep*, branch_commit const&)>;
+  using iteration_fn_t =
+      std::function<void(dep*, std::string const& /* commit */)>;
   using async_iteration_fn_t = std::function<void(dep*, iteration_fn_t)>;
 
   explicit dependency_loader(boost::filesystem::path deps_root);
@@ -25,7 +26,7 @@ public:
 
   void retrieve(
       boost::filesystem::path const&,
-      iteration_fn_t const& = [](dep*, branch_commit const&) {},
+      iteration_fn_t const& = [](dep*, std::string const&) {},
       bool recursive = false);
 
   dep* root();

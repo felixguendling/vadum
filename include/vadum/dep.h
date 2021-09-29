@@ -11,7 +11,7 @@
 namespace vadum {
 
 constexpr auto const ROOT = ".";
-constexpr auto const vadum_FILE = ".vadum";
+constexpr auto const VADUM_FILE = "vadum.ini";
 
 struct branch_commit {
   MAKE_COMPARABLE()
@@ -22,7 +22,7 @@ struct dep {
   dep() = default;
 
   dep(boost::filesystem::path const& deps_root, std::string url,
-      std::string commit, std::string branch);
+      std::string commit);
 
   static dep root(boost::filesystem::path const& root_repo);
 
@@ -42,12 +42,12 @@ struct dep {
   }
 
   boost::filesystem::path path_;
-  std::string url_, commit_, branch_;
+  std::string url_, commit_;
   std::set<dep*> preds_;
   std::set<dep*> succs_;
 
-  std::map<branch_commit, std::set<dep*>> referenced_commits_;
-  std::map<dep*, branch_commit> pred_referenced_commits_;
+  std::map<std::string, std::set<dep*>> referenced_commits_;
+  std::map<dep*, std::string> pred_referenced_commits_;
 };
 
 }  // namespace vadum

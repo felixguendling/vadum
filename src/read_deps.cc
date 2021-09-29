@@ -9,6 +9,7 @@
 #include "boost/property_tree/ini_parser.hpp"
 #include "boost/property_tree/ptree.hpp"
 
+#include "utl/parser/cstr.h"
 #include "utl/pipes.h"
 #include "utl/to_set.h"
 
@@ -25,7 +26,7 @@ std::set<fs::path> collect_vadum_files(fs::path const& p,
     auto const curr = *q.begin();
     q.erase(q.begin());
 
-    if (curr.filename() == vadum_FILE) {
+    if (curr.filename() == VADUM_FILE) {
       vadum_files.emplace(curr);
     } else if (fs::is_directory(curr) && curr.filename() != ".git" &&
                !fs::equivalent(curr, deps_root)) {
@@ -50,10 +51,16 @@ std::set<dep> read_deps(fs::path const& deps_root,
   pt::read_ini(ss, tree);
   return utl::to_set(tree, [&](auto const& entry) {
     auto const& settings = entry.second;
-    return dep{deps_root,
-               settings.template get<std::string>(pt::path{"url"}, ""),
-               settings.template get<std::string>(pt::path{"commit"}, ""),
-               settings.template get<std::string>(pt::path{"branch"}, "")};
+
+    auto url = settings.template get<std::string>(pt::path{"url"}, "");
+    if (!utl::cstr{url}.starts_with("http") &&
+        !utl::cstr{url}.starts_with("git@")) {
+      url = "git@github.com:" + url + ".git";
+    }
+
+    auto const commit =
+        settings.template get<std::string>(pt::path{"commit"}, "");
+    return dep{deps_root, url, commit};
   });
 }
 
@@ -88,7 +95,7 @@ std::optional<std::string> read_file(fs::path const& deps_root,
 
 std::set<dep> read_deps(fs::path const& deps_root, dep const* d,
                         bool const recursive) {
-  if (auto const p = d->path_ / vadum_FILE; !fs::is_regular_file(p)) {
+  if (auto const p = d->path_ / VADUM_FILE; !fs::is_regular_file(p)) {
     return {};
   } else {
     auto const file_content =

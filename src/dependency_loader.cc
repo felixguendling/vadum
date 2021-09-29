@@ -71,13 +71,12 @@ void dependency_loader::retrieve(
       return dep_mem_.emplace_back(std::make_unique<dep>(d)).get();
     });
 
-    auto const bc = branch_commit{d.branch_, d.commit_};
-    succ->referenced_commits_[bc].emplace(pred);
-    succ->pred_referenced_commits_[pred] = bc;
+    succ->referenced_commits_[d.commit_].emplace(pred);
+    succ->pred_referenced_commits_[pred] = d.commit_;
     succ->preds_.insert(pred);
     pred->succs_.insert(succ);
 
-    iterate(succ, bc);
+    iterate(succ, d.commit_);
     retrieve(succ, iterate, recursive);
   }
 }

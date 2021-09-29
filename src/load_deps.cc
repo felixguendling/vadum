@@ -32,23 +32,22 @@ void load_deps(fs::path const& repo, fs::path const& deps_root,
     boost::filesystem::create_directories(deps_root);
   }
 
-  auto const iterator = [&](dep* d, branch_commit const& bc) {
+  auto const iterator = [&](dep* d, std::string const& commit) {
     if (fs::is_directory(d->path_)) {
       executor e;
       try {
         // Fetch if commit is not known.
         if (!commit_exists(d, d->commit_) ||
-            (d->commit_ != bc.commit_ && !commit_exists(d, bc.commit_))) {
+            (d->commit_ != commit && !commit_exists(d, commit))) {
           fmt::print("{}: fetch\n", d->name());
           std::cout << std::flush;
           e.exec(d->path_, "git fetch origin");
         }
 
         // Select latest known commit.
-        if (d->commit_ != bc.commit_ &&
-            commit_time(d, d->commit_) < commit_time(d, bc.commit_)) {
-          d->commit_ = bc.commit_;
-          d->branch_ = bc.branch_;
+        if (d->commit_ != commit &&
+            commit_time(d, d->commit_) < commit_time(d, commit)) {
+          d->commit_ = commit;
         }
       } catch (std::exception const& ex) {
         fmt::print("Rev-Update failed for {}: {}\n", d->name(), ex.what());
