@@ -2,9 +2,9 @@ name: Windows Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
   release:
     types:
       - published
@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        mode: [Debug, Release]
+        mode: [ Debug, Release ]
 
     env:
       CXX: cl
